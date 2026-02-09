@@ -1,0 +1,5 @@
+<Project>
+  <!-- This file must exist so NuGet imports build/CycloneDX.MSBuildTask.targets for each inner build
+       of multi-targeting projects. The actual targets are defined in build/ and are conditioned
+       on TargetFramework being set (inner build only). -->
+</Project>

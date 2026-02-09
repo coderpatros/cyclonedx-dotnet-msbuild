@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net10.0;net9.0;net8.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Serilog" Version="4.2.0" />
+    <PackageReference Include="CycloneDX.MSBuildTask" Version="0.0.0-local" />
+  </ItemGroup>
+
+</Project>

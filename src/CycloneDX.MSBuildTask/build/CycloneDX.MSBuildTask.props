@@ -1,0 +1,4 @@
+<Project>
+  <!-- Users can override CycloneDxOutputDirectory in their project file.
+       The default is set in the .targets file after OutputPath is resolved. -->
+</Project>

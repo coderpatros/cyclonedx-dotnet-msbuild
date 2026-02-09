@@ -1,0 +1,24 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.DotSettings.user
+
+## NuGet
+*.nupkg
+*.snupkg
+
+## IDE
+.vs/
+.vscode/
+.idea/
+*.swp
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Build
+artifacts/
+TestResults/

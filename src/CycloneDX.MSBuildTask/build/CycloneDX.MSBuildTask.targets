@@ -1,0 +1,38 @@
+<Project>
+  <PropertyGroup>
+    <CycloneDxMSBuildTaskAssembly Condition="'$(CycloneDxMSBuildTaskAssembly)' == ''">$(MSBuildThisFileDirectory)../tasks/net8.0/CycloneDX.MSBuildTask.dll</CycloneDxMSBuildTaskAssembly>
+  </PropertyGroup>
+
+  <UsingTask TaskName="CycloneDX.MSBuildTask.GenerateSbomTask"
+             AssemblyFile="$(CycloneDxMSBuildTaskAssembly)" />
+
+  <Target Name="GenerateCycloneDxSbom"
+          AfterTargets="Build"
+          DependsOnTargets="ResolveAssemblyReferences"
+          Condition="'$(TargetFramework)' != ''">
+
+    <PropertyGroup>
+      <CycloneDxOutputDirectory Condition="'$(CycloneDxOutputDirectory)' == ''">$(OutputPath)</CycloneDxOutputDirectory>
+    </PropertyGroup>
+
+    <GenerateSbomTask
+      OutputDirectory="$(CycloneDxOutputDirectory)"
+      ProjectName="$(AssemblyName)"
+      ProjectVersion="$(Version)"
+      TargetFramework="$(TargetFramework)"
+      RuntimeIdentifier="$(RuntimeIdentifier)"
+      ResolvedReferences="@(ReferencePath)"
+      RuntimePackAssets="@(RuntimePackAsset)"
+      PackageReferences="@(PackageReference)"
+      ProjectAssetsFile="$(ProjectAssetsFile)" />
+  </Target>
+
+  <Target Name="CleanCycloneDxSbom" AfterTargets="Clean"
+          Condition="'$(TargetFramework)' != ''">
+    <PropertyGroup>
+      <CycloneDxOutputDirectory Condition="'$(CycloneDxOutputDirectory)' == ''">$(OutputPath)</CycloneDxOutputDirectory>
+    </PropertyGroup>
+
+    <Delete Files="$(CycloneDxOutputDirectory)bom.json;$(CycloneDxOutputDirectory)bom.xml" />
+  </Target>
+</Project>

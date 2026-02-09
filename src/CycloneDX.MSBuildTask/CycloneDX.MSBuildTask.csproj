@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>CycloneDX.MSBuildTask</RootNamespace>
+
+    <!-- NuGet package metadata -->
+    <PackageId>CycloneDX.MSBuildTask</PackageId>
+    <Description>EXPERIMENTAL MSBuild task that automatically generates CycloneDX SBOM (Software Bill of Materials) during build.</Description>
+    <PackageTags>cyclonedx;sbom;msbuild;bom;software-bill-of-materials;supply-chain</PackageTags>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+
+    <!-- Task packaging: output to tasks/ not lib/ -->
+    <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <!-- Include dependency DLLs alongside the task assembly in the package -->
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_AddTaskDependenciesToPackage</TargetsForTfmSpecificContentInPackage>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="CycloneDX.MSBuildTask.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.11.*" PrivateAssets="all" ExcludeAssets="runtime" />
+    <PackageReference Include="CycloneDX.Core" Version="10.*" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="build/**" PackagePath="build/" />
+    <Content Include="buildMultiTargeting/**" PackagePath="buildMultiTargeting/" />
+  </ItemGroup>
+
+  <!-- Pack CopyLocal dependency DLLs into tasks/$(TargetFramework)/ -->
+  <Target Name="_AddTaskDependenciesToPackage">
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="$(OutputPath)*.dll" Exclude="$(OutputPath)$(AssemblyName).dll">
+        <PackagePath>tasks/$(TargetFramework)/</PackagePath>
+      </TfmSpecificPackageFile>
+    </ItemGroup>
+  </Target>
+
+</Project>

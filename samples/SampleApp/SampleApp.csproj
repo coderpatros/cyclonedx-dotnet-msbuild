@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net10.0;net9.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Serilog" Version="4.2.0" />
+  </ItemGroup>
+
+  <!-- Reference the local CycloneDX.MSBuildTask task (override assembly path for source tree) -->
+  <PropertyGroup>
+    <CycloneDxMSBuildTaskAssembly>$(MSBuildThisFileDirectory)../../src/CycloneDX.MSBuildTask/bin/$(Configuration)/net8.0/CycloneDX.MSBuildTask.dll</CycloneDxMSBuildTaskAssembly>
+  </PropertyGroup>
+  <Import Project="../../src/CycloneDX.MSBuildTask/build/CycloneDX.MSBuildTask.props" />
+  <Import Project="../../src/CycloneDX.MSBuildTask/build/CycloneDX.MSBuildTask.targets" />
+
+</Project>

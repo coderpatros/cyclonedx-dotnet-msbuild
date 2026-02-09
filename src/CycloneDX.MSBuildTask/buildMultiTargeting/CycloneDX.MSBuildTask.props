@@ -1,0 +1,5 @@
+<Project>
+  <!-- Import default property values for multi-targeting projects.
+       Targets in build/ are imported automatically by inner builds. -->
+  <Import Project="..\build\CycloneDX.MSBuildTask.props" />
+</Project>
