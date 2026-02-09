@@ -76,13 +76,3 @@ jobs:
           asset_path: ./nupkgs/CycloneDX.MSBuildTask.${{ steps.package_release.outputs.version }}.nupkg
           asset_name: CycloneDX.MSBuildTask.${{ steps.package_release.outputs.version }}.nupkg
           asset_content_type: application/zip
-
-      - name: Upload package to github release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./nupkgs/CycloneDX.MSBuildTask.${{ steps.package_release.outputs.version }}.snupkg
-          asset_name: CycloneDX.MSBuildTask.${{ steps.package_release.outputs.version }}.snupkg
-          asset_content_type: application/zip
