@@ -82,9 +82,13 @@ public static class ProjectAssetsReader
             if (!string.Equals(type, "package", StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            var sha512 = lib.Value.TryGetProperty("sha512", out var hashProp)
+            var sha512Base64 = lib.Value.TryGetProperty("sha512", out var hashProp)
                 ? hashProp.GetString()
                 : null;
+
+            var sha512Hex = sha512Base64 is null
+                ? null
+                : Convert.ToHexString(Convert.FromBase64String(sha512Base64)).ToLowerInvariant();
 
             var path = lib.Value.TryGetProperty("path", out var pathProp)
                 ? pathProp.GetString()
@@ -99,7 +103,7 @@ public static class ProjectAssetsReader
             {
                 Name = name,
                 Version = version,
-                Sha512 = sha512,
+                Sha512Hex = sha512Hex,
                 LicenseExpression = nuspecData?.LicenseExpression,
                 LicenseUrl = nuspecData?.LicenseUrl,
                 Description = nuspecData?.Description,
@@ -302,7 +306,7 @@ public class PackageAssetInfo
 {
     public required string Name { get; init; }
     public required string Version { get; init; }
-    public string? Sha512 { get; init; }
+    public string? Sha512Hex { get; init; }
     public string? LicenseExpression { get; init; }
     public string? LicenseUrl { get; init; }
     public string? Description { get; init; }

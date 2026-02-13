@@ -36,7 +36,7 @@
   },
   "libraries": {
     "Newtonsoft.Json/13.0.3": {
-      "sha512": "HdHQRBnCnKscn3WDJmO0C8RgavUmZ7Hv3yITuYPv2nWauEDEJYMgjn5kQ3FweNgh2EJBRxWkOxEBb7MO0p1A==",
+      "sha512": "HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ==",
       "type": "package",
       "path": "newtonsoft.json/13.0.3",
       "files": [
@@ -45,7 +45,7 @@
       ]
     },
     "Serilog/4.0.0": {
-      "sha512": "examplehash_serilog_base64encodedsha512hashvalue==",
+      "sha512": "gmoWVOvKgbME8TYR+gwMf7osROiWAURterc6Rt2dQyX7wtjZYpqFiA/pY6ztjGQKKV62GGCyOcmtP1UKMHgSmA==",
       "type": "package",
       "path": "serilog/4.0.0",
       "files": [
@@ -53,7 +53,7 @@
       ]
     },
     "Serilog.Formatting.Compact/3.0.0": {
-      "sha512": "examplehash_compact_base64encodedsha512hashvalue==",
+      "sha512": "gmoWVOvKgbME8TYR+gwMf7osROiWAURterc6Rt2dQyX7wtjZYpqFiA/pY6ztjGQKKV62GGCyOcmtP1UKMHgSmA==",
       "type": "package",
       "path": "serilog.formatting.compact/3.0.0",
       "files": [

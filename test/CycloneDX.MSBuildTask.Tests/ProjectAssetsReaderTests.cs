@@ -44,8 +44,8 @@ public class ProjectAssetsReaderTests
 
         Assert.Equal("Newtonsoft.Json", pkg.Name);
         Assert.Equal("13.0.3", pkg.Version);
-        Assert.NotNull(pkg.Sha512);
-        Assert.StartsWith("HdHQRBnCnKscn3WDJmO0C8Rg", pkg.Sha512);
+        Assert.NotNull(pkg.Sha512Hex);
+        Assert.Equal("1eb0b9057765d3420ff73795fb467ce3c4163c0a02afd3f76c311982e23e8242dc04a00ec62c7fb4b1000070be52f0cd3efe1ad9dd7c94e45e1cc39a80f6becd", pkg.Sha512Hex);
     }
 
     [Fact]

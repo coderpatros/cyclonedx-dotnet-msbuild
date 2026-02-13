@@ -99,7 +99,7 @@ public class GenerateSbomTask : Microsoft.Build.Utilities.Task
                     HintPath = hintPath,
                     ResolvedFrom = NullIfEmpty(item.GetMetadata("ResolvedFrom")),
                     FusionName = NullIfEmpty(item.GetMetadata("FusionName")),
-                    FileHash = ComputeFileHash(hintPath ?? item.ItemSpec),
+                    FileHashHex = ComputeFileHashHex(hintPath ?? item.ItemSpec),
                 };
             })
             .ToList();
@@ -113,7 +113,7 @@ public class GenerateSbomTask : Microsoft.Build.Utilities.Task
                 NuGetPackageId = NullIfEmpty(item.GetMetadata("NuGetPackageId")),
                 NuGetPackageVersion = NullIfEmpty(item.GetMetadata("NuGetPackageVersion")),
                 HintPath = item.ItemSpec,
-                FileHash = ComputeFileHash(item.ItemSpec),
+                FileHashHex = ComputeFileHashHex(item.ItemSpec),
             });
         }
 
@@ -155,14 +155,14 @@ public class GenerateSbomTask : Microsoft.Build.Utilities.Task
         File.WriteAllText(xmlPath, xml);
     }
 
-    internal static string? ComputeFileHash(string? filePath)
+    internal static string? ComputeFileHashHex(string? filePath)
     {
         if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
             return null;
 
         using var stream = File.OpenRead(filePath);
         var hashBytes = SHA256.HashData(stream);
-        return Convert.ToBase64String(hashBytes);
+        return Convert.ToHexString(hashBytes).ToLowerInvariant();
     }
 
     private static string? NullIfEmpty(string? value) =>
