@@ -1,0 +1,478 @@
+﻿{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "SCRUBBED",
+  "version": 1,
+  "metadata": {
+    "timestamp": "SCRUBBED",
+    "tools": {
+      "components": [
+        {
+          "type": "application",
+          "group": "CycloneDX",
+          "name": "CycloneDX.MSBuildTask",
+          "description": "MSBuild task for CycloneDX SBOM generation"
+        }
+      ]
+    },
+    "component": {
+      "type": "application",
+      "bom-ref": "RealPkg",
+      "name": "RealPkg",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "cdx:msbuild:targetFramework",
+          "value": "net10.0"
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "bom-ref": "CycloneDX.Core/11.0.0",
+      "authors": [
+        {
+          "name": "Patrick Dwyer \u0026 Steve Springett"
+        }
+      ],
+      "name": "CycloneDX.Core",
+      "version": "11.0.0",
+      "description": "A .NET Standard library for CycloneDX bill-of-material documents.",
+      "scope": "required",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "ed6e04a3da778466199b79e7893dda48e744e0e6660ed29b58ab3aa0710fd3dc7eca36e9d4825a5c3866cc6b2dbcde93690cbe3038c8e3f59c547ae2728835b1"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "copyright": "Copyright (c) OWASP Foundation",
+      "purl": "pkg:nuget/CycloneDX.Core@11.0.0",
+      "externalReferences": [
+        {
+          "url": "https://github.com/CycloneDX/cyclonedx-dotnet-library",
+          "type": "website"
+        },
+        {
+          "url": "https://github.com/CycloneDX/cyclonedx-dotnet-library.git",
+          "type": "vcs",
+          "comment": "git, commit: d80bf2ff7a953290e2b6c3f278149dc0727890d9"
+        }
+      ],
+      "components": [
+        {
+          "type": "file",
+          "bom-ref": "CycloneDX.Core/11.0.0#CycloneDX.Core.dll",
+          "name": "CycloneDX.Core.dll",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "47decde3fb4ba5824b257fa06ede328624007eaa0788d600febc52bc0208ec91"
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:msbuild:hintPath",
+              "value": "{UserProfile}.nuget/packages/cyclonedx.core/11.0.0/lib/netstandard2.0/CycloneDX.Core.dll"
+            },
+            {
+              "name": "cdx:msbuild:resolvedFrom",
+              "value": "{HintPathFromItem}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "JetBrains.Annotations/2021.2.0",
+      "authors": [
+        {
+          "name": "JetBrains"
+        }
+      ],
+      "name": "JetBrains.Annotations",
+      "version": "2021.2.0",
+      "description": "ReSharper Annotations help reduce false positive warnings, explicitly declare purity and nullability in your code, deal with implicit usages of members, support special semantics of APIs in ASP.NET and XAML frameworks and otherwise increase accuracy of ReSharper code inspections.\n\nAll usages of ReSharper Annotations attributes are erased from metadata by default, which means no actual binary reference to \u0027JetBrains.Annotations.dll\u0027 assembly is produced. If you need to preserve these attributes in metadata, just define \u0027JETBRAINS_ANNOTATIONS\u0027 conditional compilation symbol in your projects.",
+      "scope": "required",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "90a4b2a157e774cae22872df6069abd2ecd0b88e2371cdd3286cb0c3b6ee2450987876ff5f492875804f2fb9fde39e2aeefe804a24660e0a4f19a0c67ab83f1e"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "purl": "pkg:nuget/JetBrains.Annotations@2021.2.0",
+      "externalReferences": [
+        {
+          "url": "https://www.jetbrains.com/help/resharper/Code_Analysis__Code_Annotations.html",
+          "type": "website"
+        }
+      ],
+      "components": [
+        {
+          "type": "file",
+          "bom-ref": "JetBrains.Annotations/2021.2.0#JetBrains.Annotations.dll",
+          "name": "JetBrains.Annotations.dll",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "7c09db6f259fdaa38ca842204b6f27a220edcba073d81cb3257583918169267f"
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:msbuild:hintPath",
+              "value": "{UserProfile}.nuget/packages/jetbrains.annotations/2021.2.0/lib/netstandard2.0/JetBrains.Annotations.dll"
+            },
+            {
+              "name": "cdx:msbuild:resolvedFrom",
+              "value": "{HintPathFromItem}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "Json.More.Net/1.9.0",
+      "authors": [
+        {
+          "name": "Greg Dennis"
+        }
+      ],
+      "name": "Json.More.Net",
+      "version": "1.9.0",
+      "description": "Provides extended functionality for the System.Text.Json namespace.\n\t\n\t\tRead the full documentation at https://docs.json-everything.net/more/json-more/.",
+      "scope": "required",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "30c8ddd9d3a1df684b6dc660f58c80fbb6841fd82ed9c3131005ab418d7b8a7e3e684b0f83636d6137308161c94bd4edd96531fb888dd6635e811dae884c2c55"
+        }
+      ],
+      "purl": "pkg:nuget/Json.More.Net@1.9.0",
+      "externalReferences": [
+        {
+          "url": "https://github.com/gregsdennis/json-everything",
+          "type": "website"
+        },
+        {
+          "url": "https://github.com/gregsdennis/json-everything",
+          "type": "vcs",
+          "comment": "git, commit: ff10b206fe99cdc03eadd00b7ce87871494576a5"
+        }
+      ],
+      "components": [
+        {
+          "type": "file",
+          "bom-ref": "Json.More.Net/1.9.0#Json.More.dll",
+          "name": "Json.More.dll",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "f130400886e87cc0f722cafcb38fa9839142694984bf2c92d56bdc6b021470f9"
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:msbuild:hintPath",
+              "value": "{UserProfile}.nuget/packages/json.more.net/1.9.0/lib/netstandard2.0/Json.More.dll"
+            },
+            {
+              "name": "cdx:msbuild:resolvedFrom",
+              "value": "{HintPathFromItem}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "JsonPointer.Net/3.0.3",
+      "authors": [
+        {
+          "name": "Greg Dennis"
+        }
+      ],
+      "name": "JsonPointer.Net",
+      "version": "3.0.3",
+      "description": "[JSON Pointer](https://tools.ietf.org/html/rfc6901) built on the System.Text.Json namespace.\n\t\n\t\tRead the full documentation at https://docs.json-everything.net/pointer/basics/.",
+      "scope": "required",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "982190735e651cba754760958568a2a6766eac75e6f77f8b6cf3c04ffbd7426e4f747b7a590b982e168417c559f9a5cbf4fd88e9b18d0faa434c47ea16cea08a"
+        }
+      ],
+      "purl": "pkg:nuget/JsonPointer.Net@3.0.3",
+      "externalReferences": [
+        {
+          "url": "https://github.com/gregsdennis/json-everything",
+          "type": "website"
+        },
+        {
+          "url": "https://github.com/gregsdennis/json-everything",
+          "type": "vcs",
+          "comment": "git, commit: 27e320a9fbd3119bd1046ab7063b0cad4c746045"
+        }
+      ],
+      "components": [
+        {
+          "type": "file",
+          "bom-ref": "JsonPointer.Net/3.0.3#JsonPointer.Net.dll",
+          "name": "JsonPointer.Net.dll",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "f85f5dd6b9105bc0d1ea542069d7615bcabfcf4c9fb02d33b314d6b22027fdfb"
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:msbuild:hintPath",
+              "value": "{UserProfile}.nuget/packages/jsonpointer.net/3.0.3/lib/netstandard2.0/JsonPointer.Net.dll"
+            },
+            {
+              "name": "cdx:msbuild:resolvedFrom",
+              "value": "{HintPathFromItem}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "JsonSchema.Net/5.3.1",
+      "authors": [
+        {
+          "name": "Greg Dennis"
+        }
+      ],
+      "name": "JsonSchema.Net",
+      "version": "5.3.1",
+      "description": "JSON Schema built on the System.Text.Json namespace.",
+      "scope": "required",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "d4ec7d90cb62aded54d4efa86c02866cef22f0c0166d14ca0c175ad46a4d68437ab31414143ee1f656816755a65c555bb2ff60ad30457d8262fc8ff9ce83efb1"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "purl": "pkg:nuget/JsonSchema.Net@5.3.1",
+      "externalReferences": [
+        {
+          "url": "https://github.com/gregsdennis/json-everything",
+          "type": "website"
+        },
+        {
+          "url": "https://github.com/gregsdennis/json-everything",
+          "type": "vcs",
+          "comment": "git"
+        }
+      ],
+      "components": [
+        {
+          "type": "file",
+          "bom-ref": "JsonSchema.Net/5.3.1#JsonSchema.Net.dll",
+          "name": "JsonSchema.Net.dll",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "9fa2e4f2eff6987c1aa4a3f5f421c50c308b99d9a0384b5268af1b55c62914ca"
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:msbuild:hintPath",
+              "value": "{UserProfile}.nuget/packages/jsonschema.net/5.3.1/lib/netstandard2.0/JsonSchema.Net.dll"
+            },
+            {
+              "name": "cdx:msbuild:resolvedFrom",
+              "value": "{HintPathFromItem}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "protobuf-net/3.2.45",
+      "authors": [
+        {
+          "name": "Marc Gravell"
+        }
+      ],
+      "name": "protobuf-net",
+      "version": "3.2.45",
+      "description": "Provides simple access to fast and efficient \u0022Protocol Buffers\u0022 serialization from .NET applications",
+      "scope": "required",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "e5467fba45077066c54a5eef34cac7b1f8ea771bac75df70ef0d1f0845f37f7514b6cac63550b35794a617eb021c06e7455daa3dc0f58b18833fb023f255ff1c"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "copyright": "See https://github.com/protobuf-net/protobuf-net",
+      "purl": "pkg:nuget/protobuf-net@3.2.45",
+      "externalReferences": [
+        {
+          "url": "https://github.com/protobuf-net/protobuf-net",
+          "type": "website"
+        },
+        {
+          "url": "https://github.com/protobuf-net/protobuf-net",
+          "type": "vcs",
+          "comment": "git, commit: 90014d5795f6575731c521c02ec2e6d0dadc242c"
+        }
+      ],
+      "components": [
+        {
+          "type": "file",
+          "bom-ref": "protobuf-net/3.2.45#protobuf-net.dll",
+          "name": "protobuf-net.dll",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "cb19363f3525719e95408d1e1e1c78fae65c82a34a9132751fe56c635389bd32"
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:msbuild:hintPath",
+              "value": "{UserProfile}.nuget/packages/protobuf-net/3.2.45/lib/net6.0/protobuf-net.dll"
+            },
+            {
+              "name": "cdx:msbuild:resolvedFrom",
+              "value": "{HintPathFromItem}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "protobuf-net.Core/3.2.45",
+      "authors": [
+        {
+          "name": "Marc Gravell"
+        }
+      ],
+      "name": "protobuf-net.Core",
+      "version": "3.2.45",
+      "description": "Provides simple access to fast and efficient \u0022Protocol Buffers\u0022 serialization from .NET applications",
+      "scope": "required",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "3cc59ab56d8dad3d6e4d70fb7ad27855d434c1664b16b21f7511a9a43d905fb9f3674fa4233aa1ab9e75bba6625c91d62601b88561449129d49edd9a07aa68b2"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "copyright": "See https://github.com/protobuf-net/protobuf-net",
+      "purl": "pkg:nuget/protobuf-net.Core@3.2.45",
+      "externalReferences": [
+        {
+          "url": "https://github.com/protobuf-net/protobuf-net",
+          "type": "website"
+        },
+        {
+          "url": "https://github.com/protobuf-net/protobuf-net",
+          "type": "vcs",
+          "comment": "git, commit: 90014d5795f6575731c521c02ec2e6d0dadc242c"
+        }
+      ],
+      "components": [
+        {
+          "type": "file",
+          "bom-ref": "protobuf-net.Core/3.2.45#protobuf-net.Core.dll",
+          "name": "protobuf-net.Core.dll",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "223274eabaded7c56eb137cbe783fbc9bda2ff98b9fd754e951f2b1231c4eb05"
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:msbuild:hintPath",
+              "value": "{UserProfile}.nuget/packages/protobuf-net.core/3.2.45/lib/net6.0/protobuf-net.Core.dll"
+            },
+            {
+              "name": "cdx:msbuild:resolvedFrom",
+              "value": "{HintPathFromItem}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "CycloneDX.Core/11.0.0",
+      "dependsOn": [
+        "JsonSchema.Net/5.3.1",
+        "protobuf-net/3.2.45"
+      ]
+    },
+    {
+      "ref": "JetBrains.Annotations/2021.2.0"
+    },
+    {
+      "ref": "Json.More.Net/1.9.0"
+    },
+    {
+      "ref": "JsonPointer.Net/3.0.3",
+      "dependsOn": [
+        "Json.More.Net/1.9.0"
+      ]
+    },
+    {
+      "ref": "JsonSchema.Net/5.3.1",
+      "dependsOn": [
+        "JetBrains.Annotations/2021.2.0",
+        "Json.More.Net/1.9.0",
+        "JsonPointer.Net/3.0.3"
+      ]
+    },
+    {
+      "ref": "protobuf-net.Core/3.2.45"
+    },
+    {
+      "ref": "protobuf-net/3.2.45",
+      "dependsOn": [
+        "protobuf-net.Core/3.2.45"
+      ]
+    },
+    {
+      "ref": "RealPkg",
+      "dependsOn": [
+        "CycloneDX.Core/11.0.0"
+      ]
+    }
+  ]
+}

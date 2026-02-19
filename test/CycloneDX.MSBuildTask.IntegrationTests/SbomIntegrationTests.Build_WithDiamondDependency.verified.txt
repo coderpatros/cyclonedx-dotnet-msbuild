@@ -1,0 +1,150 @@
+﻿{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "SCRUBBED",
+  "version": 1,
+  "metadata": {
+    "timestamp": "SCRUBBED",
+    "tools": {
+      "components": [
+        {
+          "type": "application",
+          "group": "CycloneDX",
+          "name": "CycloneDX.MSBuildTask",
+          "description": "MSBuild task for CycloneDX SBOM generation"
+        }
+      ]
+    },
+    "component": {
+      "type": "application",
+      "bom-ref": "AppHost",
+      "name": "AppHost",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "cdx:msbuild:targetFramework",
+          "value": "net10.0"
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "type": "framework",
+      "bom-ref": "framework:Services",
+      "name": "Services",
+      "version": "",
+      "properties": [
+        {
+          "name": "cdx:msbuild:resolvedFrom",
+          "value": "{TempPath}cyclonedx-integ-GUID/AppHostSln/Services/bin/Debug/net10.0/Services.dll"
+        },
+        {
+          "name": "cdx:msbuild:hintPath",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "TestLib.Common/2.0.0",
+      "authors": [
+        {
+          "name": "IntegrationTest"
+        }
+      ],
+      "name": "TestLib.Common",
+      "version": "2.0.0",
+      "description": "A shared common library v2",
+      "scope": "required",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "SCRUBBED"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "purl": "pkg:nuget/TestLib.Common@2.0.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "TestLib.Data/1.0.0",
+      "authors": [
+        {
+          "name": "IntegrationTest"
+        }
+      ],
+      "name": "TestLib.Data",
+      "version": "1.0.0",
+      "description": "A data access library",
+      "scope": "required",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "SCRUBBED"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "purl": "pkg:nuget/TestLib.Data@1.0.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "TestLib.Messaging/1.0.0",
+      "authors": [
+        {
+          "name": "IntegrationTest"
+        }
+      ],
+      "name": "TestLib.Messaging",
+      "version": "1.0.0",
+      "description": "A messaging library",
+      "scope": "required",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "SCRUBBED"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "purl": "pkg:nuget/TestLib.Messaging@1.0.0"
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "AppHost",
+      "dependsOn": [
+        "TestLib.Data/1.0.0"
+      ]
+    },
+    {
+      "ref": "framework:Services"
+    },
+    {
+      "ref": "TestLib.Common/2.0.0"
+    },
+    {
+      "ref": "TestLib.Data/1.0.0",
+      "dependsOn": [
+        "TestLib.Common/2.0.0"
+      ]
+    },
+    {
+      "ref": "TestLib.Messaging/1.0.0",
+      "dependsOn": [
+        "TestLib.Common/2.0.0"
+      ]
+    }
+  ]
+}
