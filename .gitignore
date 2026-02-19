@@ -22,3 +22,7 @@ Thumbs.db
 ## Build
 artifacts/
 TestResults/
+
+## agent-folder
+.agent/
+
