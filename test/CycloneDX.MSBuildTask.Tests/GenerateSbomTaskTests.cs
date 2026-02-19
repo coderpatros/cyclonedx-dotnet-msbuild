@@ -23,6 +23,7 @@ using Xunit;
 
 namespace CycloneDX.MSBuildTask.Tests;
 
+[Collection("NonParallel")]
 public class GenerateSbomTaskTests : IDisposable
 {
     private readonly string _tempDir;
