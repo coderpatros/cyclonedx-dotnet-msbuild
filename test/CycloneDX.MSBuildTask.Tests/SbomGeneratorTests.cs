@@ -17,14 +17,13 @@
 
 using CycloneDX.Models;
 using CycloneDX.MSBuildTask;
+using System.Net.NetworkInformation;
 using Xunit;
 
 namespace CycloneDX.MSBuildTask.Tests;
 
 public class SbomGeneratorTests
 {
-    private readonly SbomGenerator _generator = new();
-
     private static SbomInput CreateBasicInput() => new()
     {
         ProjectName = "TestApp",
@@ -47,17 +46,40 @@ public class SbomGeneratorTests
         ],
     };
 
+
+    private static Bom GenerateAndValidate(SbomInput input)
+    {
+        var bom = new SbomGenerator().Generate(input);
+        Assert.True(IsValidBom(bom, out var problems), String.Join('\n', problems));
+        return bom;
+    }
+
+    private static bool IsValidBom(Bom bom, out List<string> problems)
+    {
+        var json = CycloneDX.Json.Serializer.Serialize(bom);
+        var xml = CycloneDX.Xml.Serializer.Serialize(bom);
+
+        SpecificationVersion specVersion = SpecificationVersionHelpers.CurrentVersion;
+        var validationResultJson = Json.Validator.Validate(json, specVersion);
+        var validationResultXml = Xml.Validator.Validate(xml, specVersion);
+
+       problems = [..validationResultJson.Messages, ..validationResultXml.Messages];
+
+
+        return validationResultJson.Valid && validationResultXml.Valid;
+    }
+
     [Fact]
     public void Generate_SetsSpecVersion()
     {
-        var bom = _generator.Generate(CreateBasicInput());
+        var bom = GenerateAndValidate(CreateBasicInput());
         Assert.Equal(SpecificationVersion.v1_6, bom.SpecVersion);
     }
 
     [Fact]
     public void Generate_SetsSerialNumber()
     {
-        var bom = _generator.Generate(CreateBasicInput());
+        var bom = GenerateAndValidate(CreateBasicInput());
         Assert.StartsWith("urn:uuid:", bom.SerialNumber);
     }
 
@@ -65,7 +87,7 @@ public class SbomGeneratorTests
     public void Generate_SetsMetadataTimestamp()
     {
         var before = DateTime.UtcNow;
-        var bom = _generator.Generate(CreateBasicInput());
+        var bom = GenerateAndValidate(CreateBasicInput());
         var after = DateTime.UtcNow;
 
         Assert.NotNull(bom.Metadata?.Timestamp);
@@ -75,7 +97,7 @@ public class SbomGeneratorTests
     [Fact]
     public void Generate_SetsMetadataToolComponent()
     {
-        var bom = _generator.Generate(CreateBasicInput());
+        var bom = GenerateAndValidate(CreateBasicInput());
 
         Assert.NotNull(bom.Metadata?.Tools?.Components);
         var tool = Assert.Single(bom.Metadata!.Tools!.Components!);
@@ -86,7 +108,7 @@ public class SbomGeneratorTests
     [Fact]
     public void Generate_SetsMetadataComponent()
     {
-        var bom = _generator.Generate(CreateBasicInput());
+        var bom = GenerateAndValidate(CreateBasicInput());
 
         var component = bom.Metadata?.Component;
         Assert.NotNull(component);
@@ -98,7 +120,7 @@ public class SbomGeneratorTests
     [Fact]
     public void Generate_SetsTargetFrameworkProperty()
     {
-        var bom = _generator.Generate(CreateBasicInput());
+        var bom = GenerateAndValidate(CreateBasicInput());
 
         var prop = bom.Metadata?.Component?.Properties?
             .FirstOrDefault(p => p.Name == "cdx:msbuild:targetFramework");
@@ -109,7 +131,7 @@ public class SbomGeneratorTests
     [Fact]
     public void Generate_CreatesNuGetComponents()
     {
-        var bom = _generator.Generate(CreateBasicInput());
+        var bom = GenerateAndValidate(CreateBasicInput());
 
         var component = bom.Components?.FirstOrDefault(c => c.Name == "Newtonsoft.Json");
         Assert.NotNull(component);
@@ -121,7 +143,7 @@ public class SbomGeneratorTests
     [Fact]
     public void Generate_SetsComponentBomRef()
     {
-        var bom = _generator.Generate(CreateBasicInput());
+        var bom = GenerateAndValidate(CreateBasicInput());
 
         var component = bom.Components?.FirstOrDefault(c => c.Name == "Newtonsoft.Json");
         Assert.NotNull(component);
@@ -131,7 +153,7 @@ public class SbomGeneratorTests
     [Fact]
     public void Generate_CreatesFileSubComponents()
     {
-        var bom = _generator.Generate(CreateBasicInput());
+        var bom = GenerateAndValidate(CreateBasicInput());
 
         var component = bom.Components?.FirstOrDefault(c => c.Name == "Newtonsoft.Json");
         Assert.NotNull(component?.Components);
@@ -144,7 +166,7 @@ public class SbomGeneratorTests
     [Fact]
     public void Generate_FileSubComponentsHaveHintPath()
     {
-        var bom = _generator.Generate(CreateBasicInput());
+        var bom = GenerateAndValidate(CreateBasicInput());
 
         var component = bom.Components?.FirstOrDefault(c => c.Name == "Newtonsoft.Json");
         var fileComp = component!.Components!.First();
@@ -156,7 +178,7 @@ public class SbomGeneratorTests
     [Fact]
     public void Generate_FileSubComponentsHaveResolvedFrom()
     {
-        var bom = _generator.Generate(CreateBasicInput());
+        var bom = GenerateAndValidate(CreateBasicInput());
 
         var component = bom.Components?.FirstOrDefault(c => c.Name == "Newtonsoft.Json");
         var fileComp = component!.Components!.First();
@@ -179,19 +201,19 @@ public class SbomGeneratorTests
                     NuGetPackageId = "Newtonsoft.Json",
                     NuGetPackageVersion = "13.0.3",
                     HintPath = "/path/to/Newtonsoft.Json.dll",
-                    FileHash = "abc123filehash==",
+                    FileHashHex = "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
                 },
             ],
         };
 
-        var bom = _generator.Generate(input);
+        var bom = GenerateAndValidate(input);
         var component = bom.Components?.FirstOrDefault(c => c.Name == "Newtonsoft.Json");
         var fileComp = component!.Components!.First();
 
         Assert.NotNull(fileComp.Hashes);
         var hash = Assert.Single(fileComp.Hashes!);
         Assert.Equal(Hash.HashAlgorithm.SHA_256, hash.Alg);
-        Assert.Equal("abc123filehash==", hash.Content);
+        Assert.Equal("cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e", hash.Content);
     }
 
     [Fact]
@@ -207,19 +229,19 @@ public class SbomGeneratorTests
                     {
                         Name = "Newtonsoft.Json",
                         Version = "13.0.3",
-                        Sha512 = "abc123hash==",
+                        Sha512Hex = "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
                     },
                 },
             },
         };
 
-        var bom = _generator.Generate(input);
+        var bom = GenerateAndValidate(input);
         var component = bom.Components?.FirstOrDefault(c => c.Name == "Newtonsoft.Json");
 
         Assert.NotNull(component?.Hashes);
         var hash = Assert.Single(component!.Hashes!);
         Assert.Equal(Hash.HashAlgorithm.SHA_512, hash.Alg);
-        Assert.Equal("abc123hash==", hash.Content);
+        Assert.Equal("cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e", hash.Content);
     }
 
     [Fact]
@@ -235,19 +257,19 @@ public class SbomGeneratorTests
                     {
                         Name = "Newtonsoft.Json",
                         Version = "13.0.3",
-                        Sha512 = "abc==",
+                        Sha512Hex = "9b71d224bd62f3785d96d46ad3ea3d73319bfbc2890caadae2dff72519673ca72323c3d99ba5c11d7c7acc6e14b8c5da0c4663475c2e5c3adef46f73bcdec043",
                     },
                     ["System.Buffers/4.5.1"] = new PackageAssetInfo
                     {
                         Name = "System.Buffers",
                         Version = "4.5.1",
-                        Sha512 = "def==",
+                        Sha512Hex = "07e547d9586f6a73f73fbac0435ed76951218fb7d0c8d788a309d785436bbb642e93a252a954f23912547d1e8a3b5ed6e1bfd7097821233fa0538f3db854fee6",
                     },
                 },
             },
         };
 
-        var bom = _generator.Generate(input);
+        var bom = GenerateAndValidate(input);
         var transitive = bom.Components?.FirstOrDefault(c => c.Name == "System.Buffers");
 
         Assert.NotNull(transitive);
@@ -273,7 +295,7 @@ public class SbomGeneratorTests
             ],
         };
 
-        var bom = _generator.Generate(input);
+        var bom = GenerateAndValidate(input);
         var component = bom.Components?.FirstOrDefault(c => c.Name == "System.Runtime");
 
         Assert.NotNull(component);
@@ -284,7 +306,7 @@ public class SbomGeneratorTests
     public void Generate_CreatesDependencyGraph()
     {
         var input = CreateBasicInput();
-        var bom = _generator.Generate(input);
+        var bom = GenerateAndValidate(input);
 
         Assert.NotNull(bom.Dependencies);
         var rootDep = bom.Dependencies.FirstOrDefault(d => d.Ref == "TestApp");
@@ -319,7 +341,7 @@ public class SbomGeneratorTests
             },
         };
 
-        var bom = _generator.Generate(input);
+        var bom = GenerateAndValidate(input);
         var newtonsoftDep = bom.Dependencies?.FirstOrDefault(d => d.Ref == "Newtonsoft.Json/13.0.3");
 
         Assert.NotNull(newtonsoftDep);
@@ -340,7 +362,7 @@ public class SbomGeneratorTests
             ],
         };
 
-        var bom = _generator.Generate(input);
+        var bom = GenerateAndValidate(input);
         var names = bom.Components!.Select(c => c.Name).ToList();
 
         Assert.Equal(["Alpha", "Middle", "Zebra"], names);
@@ -360,7 +382,7 @@ public class SbomGeneratorTests
                     NuGetPackageId = "Newtonsoft.Json",
                     NuGetPackageVersion = "13.0.3",
                     HintPath = "/path/to/Newtonsoft.Json.dll",
-                    FileHash = "hash1==",
+                    FileHashHex = "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f",
                 },
                 new ResolvedReferenceInfo
                 {
@@ -368,12 +390,12 @@ public class SbomGeneratorTests
                     NuGetPackageId = "Newtonsoft.Json",
                     NuGetPackageVersion = "13.0.3",
                     HintPath = "/path/to/Newtonsoft.Json.Bson.dll",
-                    FileHash = "hash2==",
+                    FileHashHex = "1f40fc92da241694750979ee6cf582f2d5d7d28e18335de05abc54d0560e0f5302860c652bf08d560252aa5e74210546f369fbbbce8c12cfc7957b2652fe9a75",
                 },
             ],
         };
 
-        var bom = _generator.Generate(input);
+        var bom = GenerateAndValidate(input);
         var components = bom.Components!.Where(c => c.Name == "Newtonsoft.Json").ToList();
 
         // One package component
@@ -410,7 +432,7 @@ public class SbomGeneratorTests
             ],
         };
 
-        var bom = _generator.Generate(input);
+        var bom = GenerateAndValidate(input);
 
         Assert.DoesNotContain(bom.Components!, c => c.Name == "Microsoft.NETCore.App.Ref");
         Assert.DoesNotContain(bom.Components!, c => c.Name == "Microsoft.AspNetCore.App.Ref");
@@ -434,7 +456,7 @@ public class SbomGeneratorTests
             ],
         };
 
-        var bom = _generator.Generate(input);
+        var bom = GenerateAndValidate(input);
 
         Assert.Contains(bom.Components!, c => c.Name == "Microsoft.NETCore.App.Runtime.linux-x64");
     }
@@ -444,7 +466,7 @@ public class SbomGeneratorTests
     {
         var input = new SbomInput { ProjectName = "EmptyProject" };
 
-        var bom = _generator.Generate(input);
+        var bom = GenerateAndValidate(input);
 
         Assert.NotNull(bom.Metadata);
         Assert.NotNull(bom.Components);
@@ -456,7 +478,7 @@ public class SbomGeneratorTests
     public void Generate_UsesDefaultVersionWhenNull()
     {
         var input = new SbomInput { ProjectName = "NoVersion" };
-        var bom = _generator.Generate(input);
+        var bom = GenerateAndValidate(input);
 
         Assert.Equal("0.0.0", bom.Metadata?.Component?.Version);
     }
@@ -480,7 +502,7 @@ public class SbomGeneratorTests
             },
         };
 
-        var bom = _generator.Generate(input);
+        var bom = GenerateAndValidate(input);
         var component = bom.Components?.FirstOrDefault(c => c.Name == "Newtonsoft.Json");
 
         Assert.NotNull(component?.Licenses);
@@ -508,7 +530,7 @@ public class SbomGeneratorTests
             },
         };
 
-        var bom = _generator.Generate(input);
+        var bom = GenerateAndValidate(input);
         var component = bom.Components?.FirstOrDefault(c => c.Name == "Newtonsoft.Json");
 
         Assert.NotNull(component?.Licenses);
@@ -542,7 +564,7 @@ public class SbomGeneratorTests
             },
         };
 
-        var bom = _generator.Generate(input);
+        var bom = GenerateAndValidate(input);
         var transitive = bom.Components?.FirstOrDefault(c => c.Name == "System.Buffers");
 
         Assert.NotNull(transitive?.Licenses);
@@ -568,7 +590,7 @@ public class SbomGeneratorTests
             },
         };
 
-        var bom = _generator.Generate(input);
+        var bom = GenerateAndValidate(input);
         var component = bom.Components?.FirstOrDefault(c => c.Name == "Newtonsoft.Json");
 
         Assert.Null(component?.Licenses);
@@ -595,7 +617,7 @@ public class SbomGeneratorTests
             },
         };
 
-        var bom = _generator.Generate(input);
+        var bom = GenerateAndValidate(input);
         var component = bom.Components?.FirstOrDefault(c => c.Name == "Newtonsoft.Json");
 
         Assert.Equal("Popular JSON framework", component!.Description);
@@ -624,7 +646,7 @@ public class SbomGeneratorTests
             },
         };
 
-        var bom = _generator.Generate(input);
+        var bom = GenerateAndValidate(input);
         var component = bom.Components?.FirstOrDefault(c => c.Name == "Newtonsoft.Json");
 
         Assert.NotNull(component?.ExternalReferences);
@@ -655,7 +677,7 @@ public class SbomGeneratorTests
             },
         };
 
-        var bom = _generator.Generate(input);
+        var bom = GenerateAndValidate(input);
         var component = bom.Components?.FirstOrDefault(c => c.Name == "Newtonsoft.Json");
 
         Assert.NotNull(component?.ExternalReferences);
@@ -685,7 +707,7 @@ public class SbomGeneratorTests
             },
         };
 
-        var bom = _generator.Generate(input);
+        var bom = GenerateAndValidate(input);
         var component = bom.Components?.FirstOrDefault(c => c.Name == "Newtonsoft.Json");
 
         Assert.Null(component?.ExternalReferences);
@@ -717,7 +739,7 @@ public class SbomGeneratorTests
             },
         };
 
-        var bom = _generator.Generate(input);
+        var bom = GenerateAndValidate(input);
         var transitive = bom.Components?.FirstOrDefault(c => c.Name == "System.Buffers");
 
         Assert.Equal("Buffer utilities", transitive!.Description);

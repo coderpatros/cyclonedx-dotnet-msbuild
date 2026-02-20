@@ -23,6 +23,7 @@ using Xunit;
 
 namespace CycloneDX.MSBuildTask.Tests;
 
+[Collection("NonParallel")]
 public class GenerateSbomTaskTests : IDisposable
 {
     private readonly string _tempDir;
@@ -177,8 +178,8 @@ public class GenerateSbomTaskTests : IDisposable
         task.Execute();
 
         var json = File.ReadAllText(Path.Combine(_tempDir, "bom.json"));
-        // SHA-512 hash from the fixture
-        Assert.Contains("HdHQRBnCnKscn3WDJmO0C8Rg", json);
+        // SHA-512 hash from the fixture (but converted to hexadecimal)
+        Assert.Contains("1eb0b9057765d3420ff73795fb467ce3c416", json);
     }
 
     [Fact]
@@ -245,22 +246,22 @@ public class GenerateSbomTaskTests : IDisposable
     [Fact]
     public void ComputeFileHash_ReturnsNullForMissingFile()
     {
-        var hash = GenerateSbomTask.ComputeFileHash("/nonexistent/file.dll");
+        var hash = GenerateSbomTask.ComputeFileHashHex("/nonexistent/file.dll");
         Assert.Null(hash);
     }
 
     [Fact]
-    public void ComputeFileHash_ReturnsBase64Sha256ForExistingFile()
+    public void ComputeFileHash_ReturnsHexadecimalSha256ForExistingFile()
     {
         var tempFile = Path.GetTempFileName();
         try
         {
             File.WriteAllText(tempFile, "test content");
-            var hash = GenerateSbomTask.ComputeFileHash(tempFile);
+            var hash = GenerateSbomTask.ComputeFileHashHex(tempFile);
 
             Assert.NotNull(hash);
-            // Verify it's valid base64 and the right length for SHA-256 (32 bytes = 44 base64 chars)
-            var bytes = Convert.FromBase64String(hash!);
+            // Verify it's valid hex and the right length for SHA-256 (32 bytes = 44 base64 chars)
+            var bytes = Convert.FromHexString(hash!);
             Assert.Equal(32, bytes.Length);
         }
         finally
@@ -276,8 +277,8 @@ public class GenerateSbomTaskTests : IDisposable
         try
         {
             File.WriteAllText(tempFile, "deterministic content");
-            var hash1 = GenerateSbomTask.ComputeFileHash(tempFile);
-            var hash2 = GenerateSbomTask.ComputeFileHash(tempFile);
+            var hash1 = GenerateSbomTask.ComputeFileHashHex(tempFile);
+            var hash2 = GenerateSbomTask.ComputeFileHashHex(tempFile);
 
             Assert.Equal(hash1, hash2);
         }

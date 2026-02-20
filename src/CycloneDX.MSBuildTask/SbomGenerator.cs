@@ -200,14 +200,14 @@ public class SbomGenerator
             Name = fileName,
         };
 
-        if (!string.IsNullOrEmpty(resolved.FileHash))
+        if (!string.IsNullOrEmpty(resolved.FileHashHex))
         {
             subComponent.Hashes =
             [
                 new Hash
                 {
                     Alg = Hash.HashAlgorithm.SHA_256,
-                    Content = resolved.FileHash,
+                    Content = resolved.FileHashHex,
                 },
             ];
         }
@@ -325,14 +325,14 @@ public class SbomGenerator
 
     private static void EnrichFromAssets(Component component, PackageAssetInfo assetInfo)
     {
-        if (!string.IsNullOrEmpty(assetInfo.Sha512))
+        if (!string.IsNullOrEmpty(assetInfo.Sha512Hex))
         {
             component.Hashes =
             [
                 new Hash
                 {
                     Alg = Hash.HashAlgorithm.SHA_512,
-                    Content = assetInfo.Sha512,
+                    Content = assetInfo.Sha512Hex,
                 },
             ];
         }
@@ -361,7 +361,7 @@ public class SbomGenerator
         if (!string.IsNullOrEmpty(assetInfo.LicenseExpression))
             return [new LicenseChoice { Expression = assetInfo.LicenseExpression }];
         if (!string.IsNullOrEmpty(assetInfo.LicenseUrl))
-            return [new LicenseChoice { License = new License { Url = assetInfo.LicenseUrl } }];
+            return [new LicenseChoice { License = new License { Name = "See URL", Url = assetInfo.LicenseUrl } }];
         return null;
     }
 
@@ -431,10 +431,10 @@ public class ResolvedReferenceInfo
     public string? FusionName { get; init; }
 
     /// <summary>
-    /// SHA-256 hash of the actual resolved file on disk (base64-encoded).
+    /// SHA-256 hash of the actual resolved file on disk (hex-encoded).
     /// Computed by the MSBuild task from the file at HintPath.
     /// </summary>
-    public string? FileHash { get; init; }
+    public string? FileHashHex { get; init; }
 }
 
 public class PackageReferenceInfo
