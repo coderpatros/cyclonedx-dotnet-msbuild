@@ -1045,6 +1045,144 @@ public class SbomGeneratorTests
     }
 
     [Fact]
+    public void Generate_TopLevelFilesAddedToMetadataComponent()
+    {
+        var input = new SbomInput
+        {
+            ProjectName = "MyApp",
+            TopLevelFiles =
+            [
+                new TopLevelFileInfo
+                {
+                    FileName = "MyApp.dll",
+                    FullPath = "/out/MyApp.dll",
+                    FileHashHex = "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+                },
+                new TopLevelFileInfo
+                {
+                    FileName = "MyApp.pdb",
+                    FullPath = "/out/MyApp.pdb",
+                    FileHashHex = "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+                },
+            ],
+        };
+
+        var bom = GenerateAndValidate(input);
+        var metaComponent = bom.Metadata?.Component;
+
+        Assert.NotNull(metaComponent?.Components);
+        Assert.Equal(2, metaComponent!.Components!.Count);
+        Assert.All(metaComponent.Components, c => Assert.Equal(Component.Classification.File, c.Type));
+    }
+
+    [Fact]
+    public void Generate_TopLevelFilesHaveCorrectBomRefs()
+    {
+        var input = new SbomInput
+        {
+            ProjectName = "MyApp",
+            TopLevelFiles =
+            [
+                new TopLevelFileInfo
+                {
+                    FileName = "MyApp.dll",
+                    FullPath = "/out/MyApp.dll",
+                    FileHashHex = "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+                },
+            ],
+        };
+
+        var bom = GenerateAndValidate(input);
+        var fileComp = bom.Metadata!.Component!.Components!.First();
+
+        Assert.Equal("MyApp#MyApp.dll", fileComp.BomRef);
+        Assert.Equal("MyApp.dll", fileComp.Name);
+    }
+
+    [Fact]
+    public void Generate_TopLevelFilesHaveSha256Hashes()
+    {
+        var input = new SbomInput
+        {
+            ProjectName = "MyApp",
+            TopLevelFiles =
+            [
+                new TopLevelFileInfo
+                {
+                    FileName = "MyApp.dll",
+                    FullPath = "/out/MyApp.dll",
+                    FileHashHex = "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+                },
+            ],
+        };
+
+        var bom = GenerateAndValidate(input);
+        var fileComp = bom.Metadata!.Component!.Components!.First();
+
+        Assert.NotNull(fileComp.Hashes);
+        var hash = Assert.Single(fileComp.Hashes!);
+        Assert.Equal(Hash.HashAlgorithm.SHA_256, hash.Alg);
+        Assert.Equal("abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890", hash.Content);
+    }
+
+    [Fact]
+    public void Generate_TopLevelFilesSortedByName()
+    {
+        var input = new SbomInput
+        {
+            ProjectName = "MyApp",
+            TopLevelFiles =
+            [
+                new TopLevelFileInfo { FileName = "MyApp.pdb", FullPath = "/out/MyApp.pdb" },
+                new TopLevelFileInfo { FileName = "MyApp.deps.json", FullPath = "/out/MyApp.deps.json" },
+                new TopLevelFileInfo { FileName = "MyApp.dll", FullPath = "/out/MyApp.dll" },
+            ],
+        };
+
+        var bom = GenerateAndValidate(input);
+        var names = bom.Metadata!.Component!.Components!.Select(c => c.Name).ToList();
+
+        Assert.Equal(["MyApp.deps.json", "MyApp.dll", "MyApp.pdb"], names);
+    }
+
+    [Fact]
+    public void Generate_NoTopLevelSubComponentsWhenEmpty()
+    {
+        var input = new SbomInput
+        {
+            ProjectName = "MyApp",
+            TopLevelFiles = [],
+        };
+
+        var bom = GenerateAndValidate(input);
+
+        Assert.Null(bom.Metadata?.Component?.Components);
+    }
+
+    [Fact]
+    public void Generate_TopLevelFileWithNullHashOmitsHashes()
+    {
+        var input = new SbomInput
+        {
+            ProjectName = "MyApp",
+            TopLevelFiles =
+            [
+                new TopLevelFileInfo
+                {
+                    FileName = "MyApp.dll",
+                    FullPath = "/out/MyApp.dll",
+                    FileHashHex = null,
+                },
+            ],
+        };
+
+        var bom = GenerateAndValidate(input);
+        var fileComp = bom.Metadata!.Component!.Components!.First();
+
+        Assert.Null(fileComp.Hashes);
+    }
+
+    [Fact]
     public void Generate_SetsMetadataOnTransitiveComponent()
     {
         var input = CreateBasicInput() with

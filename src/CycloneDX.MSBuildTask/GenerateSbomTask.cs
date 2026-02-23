@@ -188,8 +188,43 @@ public class GenerateSbomTask : Microsoft.Build.Utilities.Task
             TargetFramework = TargetFramework,
             ResolvedReferences = resolvedRefs,
             PackageReferences = packageRefs,
+            TopLevelFiles = EnumerateTopLevelFiles(),
             ProjectAssets = assets,
         };
+    }
+
+    internal List<TopLevelFileInfo> EnumerateTopLevelFiles()
+    {
+        if (!Directory.Exists(OutputDirectory))
+            return [];
+
+        var assemblyName = ProjectName;
+        var candidateNames = new[]
+        {
+            $"{assemblyName}.dll",
+            $"{assemblyName}.pdb",
+            $"{assemblyName}.exe",
+            $"{assemblyName}.deps.json",
+            $"{assemblyName}.runtimeconfig.json",
+            assemblyName, // extensionless executable (Linux/macOS)
+        };
+
+        var results = new List<TopLevelFileInfo>();
+        foreach (var name in candidateNames)
+        {
+            var fullPath = Path.Combine(OutputDirectory, name);
+            if (!File.Exists(fullPath))
+                continue;
+
+            results.Add(new TopLevelFileInfo
+            {
+                FileName = name,
+                FullPath = fullPath,
+                FileHashHex = ComputeFileHashHex(fullPath),
+            });
+        }
+
+        return results;
     }
 
     private void WriteBom(CycloneDX.Models.Bom bom)
