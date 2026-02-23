@@ -254,6 +254,13 @@ public static class ProjectAssetsReader
                         pkgInfo.CompileAssemblies.Add(asm.Name);
                     }
                 }
+                if (pkg.Value.TryGetProperty("resource", out var resource))
+                {
+                    foreach (var asm in resource.EnumerateObject())
+                    {
+                        pkgInfo.ResourceAssemblies.Add(asm.Name);
+                    }
+                }
             }
         }
     }
@@ -318,4 +325,5 @@ public class PackageAssetInfo
     public string? RepositoryCommit { get; init; }
     public List<string> RuntimeAssemblies { get; } = [];
     public List<string> CompileAssemblies { get; } = [];
+    public List<string> ResourceAssemblies { get; } = [];
 }

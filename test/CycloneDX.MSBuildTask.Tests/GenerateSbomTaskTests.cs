@@ -70,6 +70,22 @@ public class GenerateSbomTaskTests : IDisposable
         return item;
     }
 
+    private static TaskItem CreateSatelliteReference(
+        string itemSpec,
+        string? nugetPackageId = null,
+        string? nugetPackageVersion = null,
+        string? cultureName = null)
+    {
+        var item = new TaskItem(itemSpec);
+        if (nugetPackageId is not null)
+            item.SetMetadata("NuGetPackageId", nugetPackageId);
+        if (nugetPackageVersion is not null)
+            item.SetMetadata("NuGetPackageVersion", nugetPackageVersion);
+        if (cultureName is not null)
+            item.SetMetadata("CultureName", cultureName);
+        return item;
+    }
+
     [Fact]
     public void Execute_GeneratesJsonAndXml()
     {
@@ -286,6 +302,76 @@ public class GenerateSbomTaskTests : IDisposable
         {
             File.Delete(tempFile);
         }
+    }
+
+    [Fact]
+    public void BuildInput_MapsSatelliteReferencesCorrectly()
+    {
+        var task = CreateTask();
+        task.SatelliteReferences =
+        [
+            CreateSatelliteReference(
+                "/path/to/cs/System.CommandLine.resources.dll",
+                nugetPackageId: "System.CommandLine",
+                nugetPackageVersion: "2.0.0-beta4",
+                cultureName: "cs"),
+            CreateSatelliteReference(
+                "/path/to/de/System.CommandLine.resources.dll",
+                nugetPackageId: "System.CommandLine",
+                nugetPackageVersion: "2.0.0-beta4",
+                cultureName: "de"),
+        ];
+
+        var input = task.BuildInput();
+
+        var satellites = input.ResolvedReferences.Where(r => r.CultureName is not null).ToList();
+        Assert.Equal(2, satellites.Count);
+
+        var cs = satellites.First(r => r.CultureName == "cs");
+        Assert.Equal("System.CommandLine", cs.NuGetPackageId);
+        Assert.Equal("2.0.0-beta4", cs.NuGetPackageVersion);
+        Assert.Equal("cs", cs.CultureName);
+
+        var de = satellites.First(r => r.CultureName == "de");
+        Assert.Equal("de", de.CultureName);
+    }
+
+    [Fact]
+    public void Execute_WithSatelliteReferences_IncludesCulturePrefixedSubComponents()
+    {
+        // Create real files so they can be hashed
+        var csDir = Path.Combine(_tempDir, "cs");
+        Directory.CreateDirectory(csDir);
+        var csDllPath = Path.Combine(csDir, "FakeLib.resources.dll");
+        File.WriteAllText(csDllPath, "fake cs resource dll");
+
+        var mainDllPath = Path.Combine(_tempDir, "FakeLib.dll");
+        File.WriteAllText(mainDllPath, "fake main dll");
+
+        var task = CreateTask();
+        task.ResolvedReferences =
+        [
+            CreateResolvedReference(
+                mainDllPath,
+                nugetPackageId: "FakeLib",
+                nugetPackageVersion: "1.0.0",
+                hintPath: mainDllPath),
+        ];
+        task.SatelliteReferences =
+        [
+            CreateSatelliteReference(
+                csDllPath,
+                nugetPackageId: "FakeLib",
+                nugetPackageVersion: "1.0.0",
+                cultureName: "cs"),
+        ];
+        task.PackageReferences = [new TaskItem("FakeLib")];
+
+        task.Execute();
+
+        var json = File.ReadAllText(Path.Combine(_tempDir, "bom.json"));
+        Assert.Contains("cs/FakeLib.resources.dll", json);
+        Assert.Contains("cdx:msbuild:cultureName", json);
     }
 
     [Fact]
