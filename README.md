@@ -70,3 +70,20 @@ dotnet build samples/SampleApp/SampleApp.csproj
 cat samples/SampleApp/bin/Debug/net10.0/bom.json
 ```
 
+### Testing a Local Build Against Another Project
+
+Use `test-local.sh` to build the task from source and run it against any local project:
+
+```bash
+./test-local.sh /path/to/MyApp.csproj
+```
+
+This builds the task in Release mode then builds the target project using the local task DLL. Extra `dotnet build` arguments are passed through:
+
+```bash
+./test-local.sh /path/to/MyApp.csproj -c Release
+./test-local.sh /path/to/MyApp.csproj -r linux-x64
+```
+
+The generated `bom.json` and `bom.xml` will appear in the target project's output directory.
+

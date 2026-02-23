@@ -46,6 +46,7 @@ public static class ProjectAssetsReader
         {
             Packages = packages,
             DependencyGraph = dependencyGraph,
+            PackageFolders = packageFolders,
         };
     }
 
@@ -104,6 +105,7 @@ public static class ProjectAssetsReader
                 Name = name,
                 Version = version,
                 Sha512Hex = sha512Hex,
+                PackagePath = path,
                 LicenseExpression = nuspecData?.LicenseExpression,
                 LicenseUrl = nuspecData?.LicenseUrl,
                 Description = nuspecData?.Description,
@@ -307,6 +309,11 @@ public class ProjectAssetsData
     /// Note: dependency versions from project.assets.json may be version ranges or resolved versions.
     /// </summary>
     public Dictionary<string, List<string>> DependencyGraph { get; init; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// NuGet package folder paths from the "packageFolders" section.
+    /// </summary>
+    public List<string> PackageFolders { get; init; } = [];
 }
 
 public class PackageAssetInfo
@@ -314,6 +321,10 @@ public class PackageAssetInfo
     public required string Name { get; init; }
     public required string Version { get; init; }
     public string? Sha512Hex { get; init; }
+    /// <summary>
+    /// Relative path within the package folder (e.g. "system.commandline/2.0.0-beta4.22272.1").
+    /// </summary>
+    public string? PackagePath { get; init; }
     public string? LicenseExpression { get; init; }
     public string? LicenseUrl { get; init; }
     public string? Description { get; init; }
