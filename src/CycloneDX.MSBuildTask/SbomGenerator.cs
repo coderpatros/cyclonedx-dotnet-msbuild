@@ -154,6 +154,44 @@ public class SbomGenerator
 
                     components[assetKey] = component;
                 }
+
+                // Add resource (satellite) assembly sub-components from the "resource" section.
+                // MSBuild's ReferenceSatellitePaths is not populated for NuGet packages, so
+                // project.assets.json is the only source for these.
+                if (assetInfo.ResourceAssemblies.Count > 0 && components.TryGetValue(assetKey, out var parent))
+                {
+                    var existingSubs = parent.Components ?? [];
+                    var existingBomRefs = new HashSet<string>(
+                        existingSubs.Select(c => c.BomRef), StringComparer.OrdinalIgnoreCase);
+                    var allSubs = new List<Component>(existingSubs);
+
+                    foreach (var resourcePath in assetInfo.ResourceAssemblies)
+                    {
+                        // resourcePath is e.g. "lib/net6.0/cs/System.CommandLine.resources.dll"
+                        var fileName = Path.GetFileName(resourcePath);
+                        var culture = Path.GetFileName(Path.GetDirectoryName(resourcePath));
+                        var displayName = $"{culture}/{fileName}";
+                        var bomRef = $"{assetKey}#{displayName}";
+
+                        if (existingBomRefs.Contains(bomRef))
+                            continue;
+
+                        allSubs.Add(new Component
+                        {
+                            Type = Component.Classification.File,
+                            BomRef = bomRef,
+                            Name = displayName,
+                            Properties =
+                            [
+                                new Property { Name = "cdx:msbuild:cultureName", Value = culture },
+                            ],
+                        });
+                    }
+
+                    parent.Components = allSubs
+                        .OrderBy(c => c.Name, StringComparer.OrdinalIgnoreCase)
+                        .ToList();
+                }
             }
         }
 
