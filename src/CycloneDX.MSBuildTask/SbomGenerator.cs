@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright (c) Patrick Dwyer. All Rights Reserved.
 
+using System.Security.Cryptography;
 using CycloneDX.Models;
 
 namespace CycloneDX.MSBuildTask;
@@ -176,7 +177,7 @@ public class SbomGenerator
                         if (existingBomRefs.Contains(bomRef))
                             continue;
 
-                        allSubs.Add(new Component
+                        var subComponent = new Component
                         {
                             Type = Component.Classification.File,
                             BomRef = bomRef,
@@ -185,7 +186,37 @@ public class SbomGenerator
                             [
                                 new Property { Name = "cdx:msbuild:cultureName", Value = culture },
                             ],
-                        });
+                        };
+
+                        // Resolve the file on disk and compute its hash
+                        if (assetInfo.PackagePath is not null)
+                        {
+                            var fullPath = ResolvePackageFilePath(
+                                input.ProjectAssets.PackageFolders, assetInfo.PackagePath, resourcePath);
+                            if (fullPath is not null)
+                            {
+                                var hashHex = ComputeFileHashHex(fullPath);
+                                if (hashHex is not null)
+                                {
+                                    subComponent.Hashes =
+                                    [
+                                        new Hash
+                                        {
+                                            Alg = Hash.HashAlgorithm.SHA_256,
+                                            Content = hashHex,
+                                        },
+                                    ];
+                                }
+
+                                (subComponent.Properties ??= []).Add(new Property
+                                {
+                                    Name = "cdx:msbuild:hintPath",
+                                    Value = fullPath,
+                                });
+                            }
+                        }
+
+                        allSubs.Add(subComponent);
                     }
 
                     parent.Components = allSubs
@@ -459,6 +490,28 @@ public class SbomGenerator
         return string.IsNullOrEmpty(version)
             ? $"pkg:nuget/{name}"
             : $"pkg:nuget/{name}@{version}";
+    }
+
+    internal static string? ResolvePackageFilePath(
+        List<string> packageFolders, string packagePath, string relativeFilePath)
+    {
+        foreach (var folder in packageFolders)
+        {
+            var fullPath = Path.Combine(folder, packagePath, relativeFilePath);
+            if (File.Exists(fullPath))
+                return fullPath;
+        }
+        return null;
+    }
+
+    internal static string? ComputeFileHashHex(string? filePath)
+    {
+        if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
+            return null;
+
+        using var stream = File.OpenRead(filePath);
+        var hashBytes = SHA256.HashData(stream);
+        return Convert.ToHexString(hashBytes).ToLowerInvariant();
     }
 }
 
