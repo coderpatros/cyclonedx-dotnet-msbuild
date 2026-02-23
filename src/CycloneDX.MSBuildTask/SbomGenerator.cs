@@ -192,12 +192,18 @@ public class SbomGenerator
 
     private static Component CreateFileSubComponent(string parentBomRef, ResolvedReferenceInfo resolved)
     {
-        var fileName = Path.GetFileName(resolved.HintPath ?? resolved.FileName);
+        var rawFileName = Path.GetFileName(resolved.HintPath ?? resolved.FileName);
+
+        // For satellite assemblies, prefix with culture to ensure unique names and BomRefs
+        var displayName = !string.IsNullOrEmpty(resolved.CultureName)
+            ? $"{resolved.CultureName}/{rawFileName}"
+            : rawFileName;
+
         var subComponent = new Component
         {
             Type = Component.Classification.File,
-            BomRef = $"{parentBomRef}#{fileName}",
-            Name = fileName,
+            BomRef = $"{parentBomRef}#{displayName}",
+            Name = displayName,
         };
 
         if (!string.IsNullOrEmpty(resolved.FileHashHex))
@@ -213,6 +219,14 @@ public class SbomGenerator
         }
 
         var properties = new List<Property>();
+        if (!string.IsNullOrEmpty(resolved.CultureName))
+        {
+            properties.Add(new Property
+            {
+                Name = "cdx:msbuild:cultureName",
+                Value = resolved.CultureName,
+            });
+        }
         if (!string.IsNullOrEmpty(resolved.HintPath))
         {
             properties.Add(new Property
@@ -435,6 +449,12 @@ public class ResolvedReferenceInfo
     /// Computed by the MSBuild task from the file at HintPath.
     /// </summary>
     public string? FileHashHex { get; init; }
+
+    /// <summary>
+    /// Culture name for satellite (resource) assemblies (e.g. "cs", "de", "fr").
+    /// Null for regular assemblies.
+    /// </summary>
+    public string? CultureName { get; init; }
 }
 
 public class PackageReferenceInfo

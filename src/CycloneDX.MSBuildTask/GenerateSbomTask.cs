@@ -51,6 +51,12 @@ public class GenerateSbomTask : Microsoft.Build.Utilities.Task
     public ITaskItem[]? RuntimePackAssets { get; set; }
 
     /// <summary>
+    /// Satellite (resource) assemblies from MSBuild's ResolveAssemblyReferences target.
+    /// Expected metadata: NuGetPackageId, NuGetPackageVersion, CultureName.
+    /// </summary>
+    public ITaskItem[]? SatelliteReferences { get; set; }
+
+    /// <summary>
     /// Declared PackageReference items from the project file.
     /// </summary>
     public ITaskItem[]? PackageReferences { get; set; }
@@ -114,6 +120,20 @@ public class GenerateSbomTask : Microsoft.Build.Utilities.Task
                 NuGetPackageVersion = NullIfEmpty(item.GetMetadata("NuGetPackageVersion")),
                 HintPath = item.ItemSpec,
                 FileHashHex = ComputeFileHashHex(item.ItemSpec),
+            });
+        }
+
+        // Add satellite (resource) assemblies as additional resolved references
+        foreach (var item in SatelliteReferences ?? [])
+        {
+            resolvedRefs.Add(new ResolvedReferenceInfo
+            {
+                FileName = Path.GetFileNameWithoutExtension(item.ItemSpec),
+                NuGetPackageId = NullIfEmpty(item.GetMetadata("NuGetPackageId")),
+                NuGetPackageVersion = NullIfEmpty(item.GetMetadata("NuGetPackageVersion")),
+                HintPath = item.ItemSpec,
+                FileHashHex = ComputeFileHashHex(item.ItemSpec),
+                CultureName = NullIfEmpty(item.GetMetadata("CultureName")),
             });
         }
 

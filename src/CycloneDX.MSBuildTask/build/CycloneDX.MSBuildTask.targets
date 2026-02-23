@@ -23,6 +23,7 @@
       RuntimeIdentifier="$(RuntimeIdentifier)"
       ResolvedReferences="@(ReferencePath)"
       RuntimePackAssets="@(RuntimePackAsset)"
+      SatelliteReferences="@(ReferenceSatellitePaths)"
       PackageReferences="@(PackageReference)"
       ProjectAssetsFile="$(ProjectAssetsFile)" />
   </Target>
