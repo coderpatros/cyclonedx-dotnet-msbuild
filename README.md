@@ -1,4 +1,4 @@
-# EXPERIMENTAL CycloneDX MSBuild Task
+# CycloneDX MSBuild Task
 
 An MSBuild task that automatically generates [CycloneDX](https://cyclonedx.org/) Software Bill of Materials (SBOM) during build. It combines NuGet package manifest data with MSBuild's actual resolved assembly references to produce an accurate, build-time SBOM.
 
