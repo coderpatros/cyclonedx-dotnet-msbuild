@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright (c) Patrick Dwyer. All Rights Reserved.
 
+using System.Security.Cryptography;
 using CycloneDX.Models;
 
 namespace CycloneDX.MSBuildTask;
@@ -154,6 +155,74 @@ public class SbomGenerator
 
                     components[assetKey] = component;
                 }
+
+                // Add resource (satellite) assembly sub-components from the "resource" section.
+                // MSBuild's ReferenceSatellitePaths is not populated for NuGet packages, so
+                // project.assets.json is the only source for these.
+                if (assetInfo.ResourceAssemblies.Count > 0 && components.TryGetValue(assetKey, out var parent))
+                {
+                    var existingSubs = parent.Components ?? [];
+                    var existingBomRefs = new HashSet<string>(
+                        existingSubs.Select(c => c.BomRef), StringComparer.OrdinalIgnoreCase);
+                    var allSubs = new List<Component>(existingSubs);
+
+                    foreach (var resourcePath in assetInfo.ResourceAssemblies)
+                    {
+                        // resourcePath is e.g. "lib/net6.0/cs/System.CommandLine.resources.dll"
+                        var fileName = Path.GetFileName(resourcePath);
+                        var culture = Path.GetFileName(Path.GetDirectoryName(resourcePath));
+                        var displayName = $"{culture}/{fileName}";
+                        var bomRef = $"{assetKey}#{displayName}";
+
+                        if (existingBomRefs.Contains(bomRef))
+                            continue;
+
+                        var subComponent = new Component
+                        {
+                            Type = Component.Classification.File,
+                            BomRef = bomRef,
+                            Name = displayName,
+                            Properties =
+                            [
+                                new Property { Name = "cdx:msbuild:cultureName", Value = culture },
+                            ],
+                        };
+
+                        // Resolve the file on disk and compute its hash
+                        if (assetInfo.PackagePath is not null)
+                        {
+                            var fullPath = ResolvePackageFilePath(
+                                input.ProjectAssets.PackageFolders, assetInfo.PackagePath, resourcePath);
+                            if (fullPath is not null)
+                            {
+                                var hashHex = ComputeFileHashHex(fullPath);
+                                if (hashHex is not null)
+                                {
+                                    subComponent.Hashes =
+                                    [
+                                        new Hash
+                                        {
+                                            Alg = Hash.HashAlgorithm.SHA_256,
+                                            Content = hashHex,
+                                        },
+                                    ];
+                                }
+
+                                (subComponent.Properties ??= []).Add(new Property
+                                {
+                                    Name = "cdx:msbuild:hintPath",
+                                    Value = fullPath,
+                                });
+                            }
+                        }
+
+                        allSubs.Add(subComponent);
+                    }
+
+                    parent.Components = allSubs
+                        .OrderBy(c => c.Name, StringComparer.OrdinalIgnoreCase)
+                        .ToList();
+                }
             }
         }
 
@@ -192,12 +261,18 @@ public class SbomGenerator
 
     private static Component CreateFileSubComponent(string parentBomRef, ResolvedReferenceInfo resolved)
     {
-        var fileName = Path.GetFileName(resolved.HintPath ?? resolved.FileName);
+        var rawFileName = Path.GetFileName(resolved.HintPath ?? resolved.FileName);
+
+        // For satellite assemblies, prefix with culture to ensure unique names and BomRefs
+        var displayName = !string.IsNullOrEmpty(resolved.CultureName)
+            ? $"{resolved.CultureName}/{rawFileName}"
+            : rawFileName;
+
         var subComponent = new Component
         {
             Type = Component.Classification.File,
-            BomRef = $"{parentBomRef}#{fileName}",
-            Name = fileName,
+            BomRef = $"{parentBomRef}#{displayName}",
+            Name = displayName,
         };
 
         if (!string.IsNullOrEmpty(resolved.FileHashHex))
@@ -213,6 +288,14 @@ public class SbomGenerator
         }
 
         var properties = new List<Property>();
+        if (!string.IsNullOrEmpty(resolved.CultureName))
+        {
+            properties.Add(new Property
+            {
+                Name = "cdx:msbuild:cultureName",
+                Value = resolved.CultureName,
+            });
+        }
         if (!string.IsNullOrEmpty(resolved.HintPath))
         {
             properties.Add(new Property
@@ -408,6 +491,28 @@ public class SbomGenerator
             ? $"pkg:nuget/{name}"
             : $"pkg:nuget/{name}@{version}";
     }
+
+    internal static string? ResolvePackageFilePath(
+        List<string> packageFolders, string packagePath, string relativeFilePath)
+    {
+        foreach (var folder in packageFolders)
+        {
+            var fullPath = Path.Combine(folder, packagePath, relativeFilePath);
+            if (File.Exists(fullPath))
+                return fullPath;
+        }
+        return null;
+    }
+
+    internal static string? ComputeFileHashHex(string? filePath)
+    {
+        if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
+            return null;
+
+        using var stream = File.OpenRead(filePath);
+        var hashBytes = SHA256.HashData(stream);
+        return Convert.ToHexString(hashBytes).ToLowerInvariant();
+    }
 }
 
 public record SbomInput
@@ -435,6 +540,12 @@ public class ResolvedReferenceInfo
     /// Computed by the MSBuild task from the file at HintPath.
     /// </summary>
     public string? FileHashHex { get; init; }
+
+    /// <summary>
+    /// Culture name for satellite (resource) assemblies (e.g. "cs", "de", "fr").
+    /// Null for regular assemblies.
+    /// </summary>
+    public string? CultureName { get; init; }
 }
 
 public class PackageReferenceInfo

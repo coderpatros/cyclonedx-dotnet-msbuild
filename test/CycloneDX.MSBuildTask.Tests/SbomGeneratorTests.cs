@@ -714,6 +714,337 @@ public class SbomGeneratorTests
     }
 
     [Fact]
+    public void Generate_SatelliteAssemblyHasCulturePrefixedName()
+    {
+        var input = new SbomInput
+        {
+            ProjectName = "TestApp",
+            ResolvedReferences =
+            [
+                new ResolvedReferenceInfo
+                {
+                    FileName = "System.CommandLine",
+                    NuGetPackageId = "System.CommandLine",
+                    NuGetPackageVersion = "2.0.0-beta4",
+                    HintPath = "/path/to/System.CommandLine.dll",
+                },
+                new ResolvedReferenceInfo
+                {
+                    FileName = "System.CommandLine.resources",
+                    NuGetPackageId = "System.CommandLine",
+                    NuGetPackageVersion = "2.0.0-beta4",
+                    HintPath = "/path/to/cs/System.CommandLine.resources.dll",
+                    CultureName = "cs",
+                },
+                new ResolvedReferenceInfo
+                {
+                    FileName = "System.CommandLine.resources",
+                    NuGetPackageId = "System.CommandLine",
+                    NuGetPackageVersion = "2.0.0-beta4",
+                    HintPath = "/path/to/de/System.CommandLine.resources.dll",
+                    CultureName = "de",
+                },
+            ],
+        };
+
+        var bom = GenerateAndValidate(input);
+        var component = bom.Components?.FirstOrDefault(c => c.Name == "System.CommandLine");
+
+        Assert.NotNull(component?.Components);
+        Assert.Equal(3, component!.Components!.Count);
+
+        var csFile = component.Components.FirstOrDefault(c => c.Name == "cs/System.CommandLine.resources.dll");
+        Assert.NotNull(csFile);
+        Assert.Equal("System.CommandLine/2.0.0-beta4#cs/System.CommandLine.resources.dll", csFile!.BomRef);
+
+        var deFile = component.Components.FirstOrDefault(c => c.Name == "de/System.CommandLine.resources.dll");
+        Assert.NotNull(deFile);
+        Assert.Equal("System.CommandLine/2.0.0-beta4#de/System.CommandLine.resources.dll", deFile!.BomRef);
+    }
+
+    [Fact]
+    public void Generate_SatelliteAssemblyHasCultureNameProperty()
+    {
+        var input = new SbomInput
+        {
+            ProjectName = "TestApp",
+            ResolvedReferences =
+            [
+                new ResolvedReferenceInfo
+                {
+                    FileName = "System.CommandLine",
+                    NuGetPackageId = "System.CommandLine",
+                    NuGetPackageVersion = "2.0.0-beta4",
+                    HintPath = "/path/to/System.CommandLine.dll",
+                },
+                new ResolvedReferenceInfo
+                {
+                    FileName = "System.CommandLine.resources",
+                    NuGetPackageId = "System.CommandLine",
+                    NuGetPackageVersion = "2.0.0-beta4",
+                    HintPath = "/path/to/fr/System.CommandLine.resources.dll",
+                    CultureName = "fr",
+                },
+            ],
+        };
+
+        var bom = GenerateAndValidate(input);
+        var component = bom.Components?.FirstOrDefault(c => c.Name == "System.CommandLine");
+        var frFile = component!.Components!.FirstOrDefault(c => c.Name == "fr/System.CommandLine.resources.dll");
+
+        Assert.NotNull(frFile);
+        var cultureProp = frFile!.Properties?.FirstOrDefault(p => p.Name == "cdx:msbuild:cultureName");
+        Assert.NotNull(cultureProp);
+        Assert.Equal("fr", cultureProp!.Value);
+    }
+
+    [Fact]
+    public void Generate_SatelliteAssemblyBomRefsAreUnique()
+    {
+        var input = new SbomInput
+        {
+            ProjectName = "TestApp",
+            ResolvedReferences =
+            [
+                new ResolvedReferenceInfo
+                {
+                    FileName = "MyLib.resources",
+                    NuGetPackageId = "MyLib",
+                    NuGetPackageVersion = "1.0.0",
+                    HintPath = "/path/to/cs/MyLib.resources.dll",
+                    CultureName = "cs",
+                },
+                new ResolvedReferenceInfo
+                {
+                    FileName = "MyLib.resources",
+                    NuGetPackageId = "MyLib",
+                    NuGetPackageVersion = "1.0.0",
+                    HintPath = "/path/to/de/MyLib.resources.dll",
+                    CultureName = "de",
+                },
+                new ResolvedReferenceInfo
+                {
+                    FileName = "MyLib.resources",
+                    NuGetPackageId = "MyLib",
+                    NuGetPackageVersion = "1.0.0",
+                    HintPath = "/path/to/fr/MyLib.resources.dll",
+                    CultureName = "fr",
+                },
+            ],
+        };
+
+        var bom = GenerateAndValidate(input);
+        var component = bom.Components?.FirstOrDefault(c => c.Name == "MyLib");
+        var bomRefs = component!.Components!.Select(c => c.BomRef).ToList();
+
+        Assert.Equal(3, bomRefs.Count);
+        Assert.Equal(3, bomRefs.Distinct().Count());
+    }
+
+    [Fact]
+    public void Generate_ResourceAssembliesFromResolvedRefsCreateSubComponents()
+    {
+        // Resource assemblies are added to ResolvedReferences by BuildInput() after
+        // resolving paths from project.assets.json — SbomGenerator sees them as normal refs
+        var input = new SbomInput
+        {
+            ProjectName = "TestApp",
+            ResolvedReferences =
+            [
+                new ResolvedReferenceInfo
+                {
+                    FileName = "System.CommandLine",
+                    NuGetPackageId = "System.CommandLine",
+                    NuGetPackageVersion = "2.0.0-beta4",
+                    HintPath = "/path/to/System.CommandLine.dll",
+                },
+                new ResolvedReferenceInfo
+                {
+                    FileName = "System.CommandLine.resources",
+                    NuGetPackageId = "System.CommandLine",
+                    NuGetPackageVersion = "2.0.0-beta4",
+                    HintPath = "/path/to/cs/System.CommandLine.resources.dll",
+                    CultureName = "cs",
+                    FileHashHex = "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+                },
+                new ResolvedReferenceInfo
+                {
+                    FileName = "System.CommandLine.resources",
+                    NuGetPackageId = "System.CommandLine",
+                    NuGetPackageVersion = "2.0.0-beta4",
+                    HintPath = "/path/to/de/System.CommandLine.resources.dll",
+                    CultureName = "de",
+                    FileHashHex = "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+                },
+                new ResolvedReferenceInfo
+                {
+                    FileName = "System.CommandLine.resources",
+                    NuGetPackageId = "System.CommandLine",
+                    NuGetPackageVersion = "2.0.0-beta4",
+                    HintPath = "/path/to/fr/System.CommandLine.resources.dll",
+                    CultureName = "fr",
+                    FileHashHex = "567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234",
+                },
+            ],
+        };
+
+        var bom = GenerateAndValidate(input);
+        var component = bom.Components?.FirstOrDefault(c => c.Name == "System.CommandLine");
+
+        Assert.NotNull(component?.Components);
+        // 1 main DLL + 3 resource DLLs
+        Assert.Equal(4, component!.Components!.Count);
+
+        var csFile = component.Components.FirstOrDefault(c => c.Name == "cs/System.CommandLine.resources.dll");
+        Assert.NotNull(csFile);
+        Assert.Equal("System.CommandLine/2.0.0-beta4#cs/System.CommandLine.resources.dll", csFile!.BomRef);
+        Assert.NotNull(csFile.Hashes);
+        var cultureProp = csFile.Properties?.FirstOrDefault(p => p.Name == "cdx:msbuild:cultureName");
+        Assert.NotNull(cultureProp);
+        Assert.Equal("cs", cultureProp!.Value);
+
+        var deFile = component.Components.FirstOrDefault(c => c.Name == "de/System.CommandLine.resources.dll");
+        Assert.NotNull(deFile);
+        Assert.NotNull(deFile!.Hashes);
+
+        var frFile = component.Components.FirstOrDefault(c => c.Name == "fr/System.CommandLine.resources.dll");
+        Assert.NotNull(frFile);
+        Assert.NotNull(frFile!.Hashes);
+    }
+
+    [Fact]
+    public void Generate_ResourceAssembliesFromAssetsFallbackIncludesHashes()
+    {
+        // When resource assemblies are only in ProjectAssets (not in ResolvedReferences),
+        // the fallback path resolves files from package folders and computes hashes
+        var tempDir = Path.Combine(Path.GetTempPath(), $"sbom-test-{Guid.NewGuid():N}");
+        var packageFolder = Path.Combine(tempDir, "packages") + Path.DirectorySeparatorChar;
+        var csDir = Path.Combine(packageFolder, "mylib", "1.0.0", "lib", "net6.0", "cs");
+        Directory.CreateDirectory(csDir);
+        File.WriteAllText(Path.Combine(csDir, "MyLib.resources.dll"), "fake cs resource dll");
+
+        try
+        {
+            var assetInfo = new PackageAssetInfo
+            {
+                Name = "MyLib",
+                Version = "1.0.0",
+                PackagePath = "mylib/1.0.0",
+            };
+            assetInfo.ResourceAssemblies.Add("lib/net6.0/cs/MyLib.resources.dll");
+
+            var input = new SbomInput
+            {
+                ProjectName = "TestApp",
+                ResolvedReferences =
+                [
+                    new ResolvedReferenceInfo
+                    {
+                        FileName = "MyLib",
+                        NuGetPackageId = "MyLib",
+                        NuGetPackageVersion = "1.0.0",
+                        HintPath = "/path/to/MyLib.dll",
+                    },
+                ],
+                ProjectAssets = new ProjectAssetsData
+                {
+                    PackageFolders = [packageFolder],
+                    Packages = new Dictionary<string, PackageAssetInfo>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["MyLib/1.0.0"] = assetInfo,
+                    },
+                },
+            };
+
+            var bom = GenerateAndValidate(input);
+            var component = bom.Components?.FirstOrDefault(c => c.Name == "MyLib");
+
+            Assert.NotNull(component?.Components);
+            Assert.Equal(2, component!.Components!.Count);
+
+            var csFile = component.Components.First(c => c.Name == "cs/MyLib.resources.dll");
+            Assert.NotNull(csFile.Hashes);
+            var hash = Assert.Single(csFile.Hashes!);
+            Assert.Equal(Hash.HashAlgorithm.SHA_256, hash.Alg);
+            Assert.NotEmpty(hash.Content);
+
+            var hintProp = csFile.Properties?.FirstOrDefault(p => p.Name == "cdx:msbuild:hintPath");
+            Assert.NotNull(hintProp);
+            Assert.Contains("MyLib.resources.dll", hintProp!.Value);
+        }
+        finally
+        {
+            Directory.Delete(tempDir, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void Generate_ResourceAssembliesFromAssetsFallbackDoesNotDuplicateExisting()
+    {
+        // When a satellite assembly is already in ResolvedReferences (e.g. from
+        // @(ReferenceSatellitePaths)), the assets fallback should skip it
+        var input = new SbomInput
+        {
+            ProjectName = "TestApp",
+            ResolvedReferences =
+            [
+                new ResolvedReferenceInfo
+                {
+                    FileName = "MyLib",
+                    NuGetPackageId = "MyLib",
+                    NuGetPackageVersion = "1.0.0",
+                    HintPath = "/path/to/MyLib.dll",
+                },
+                new ResolvedReferenceInfo
+                {
+                    FileName = "MyLib.resources",
+                    NuGetPackageId = "MyLib",
+                    NuGetPackageVersion = "1.0.0",
+                    HintPath = "/path/to/cs/MyLib.resources.dll",
+                    CultureName = "cs",
+                    FileHashHex = "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+                },
+            ],
+            ProjectAssets = new ProjectAssetsData
+            {
+                Packages = new Dictionary<string, PackageAssetInfo>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["MyLib/1.0.0"] = new PackageAssetInfo
+                    {
+                        Name = "MyLib",
+                        Version = "1.0.0",
+                        ResourceAssemblies = { "lib/net6.0/cs/MyLib.resources.dll" },
+                    },
+                },
+            },
+        };
+
+        var bom = GenerateAndValidate(input);
+        var component = bom.Components?.FirstOrDefault(c => c.Name == "MyLib");
+
+        Assert.NotNull(component?.Components);
+        // 1 main DLL + 1 cs resource (not duplicated)
+        Assert.Equal(2, component!.Components!.Count);
+
+        // The one from ResolvedReferences should be kept (has hash)
+        var csFile = component.Components.First(c => c.Name == "cs/MyLib.resources.dll");
+        Assert.NotNull(csFile.Hashes);
+    }
+
+    [Fact]
+    public void Generate_RegularAssemblyHasNoCultureProperty()
+    {
+        var input = CreateBasicInput();
+
+        var bom = GenerateAndValidate(input);
+        var component = bom.Components?.FirstOrDefault(c => c.Name == "Newtonsoft.Json");
+        var fileComp = component!.Components!.First();
+
+        var cultureProp = fileComp.Properties?.FirstOrDefault(p => p.Name == "cdx:msbuild:cultureName");
+        Assert.Null(cultureProp);
+    }
+
+    [Fact]
     public void Generate_SetsMetadataOnTransitiveComponent()
     {
         var input = CreateBasicInput() with

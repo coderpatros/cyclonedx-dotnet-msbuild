@@ -51,6 +51,12 @@ public class GenerateSbomTask : Microsoft.Build.Utilities.Task
     public ITaskItem[]? RuntimePackAssets { get; set; }
 
     /// <summary>
+    /// Satellite (resource) assemblies from MSBuild's ResolveAssemblyReferences target.
+    /// Expected metadata: NuGetPackageId, NuGetPackageVersion, CultureName.
+    /// </summary>
+    public ITaskItem[]? SatelliteReferences { get; set; }
+
+    /// <summary>
     /// Declared PackageReference items from the project file.
     /// </summary>
     public ITaskItem[]? PackageReferences { get; set; }
@@ -117,6 +123,20 @@ public class GenerateSbomTask : Microsoft.Build.Utilities.Task
             });
         }
 
+        // Add satellite (resource) assemblies as additional resolved references
+        foreach (var item in SatelliteReferences ?? [])
+        {
+            resolvedRefs.Add(new ResolvedReferenceInfo
+            {
+                FileName = Path.GetFileNameWithoutExtension(item.ItemSpec),
+                NuGetPackageId = NullIfEmpty(item.GetMetadata("NuGetPackageId")),
+                NuGetPackageVersion = NullIfEmpty(item.GetMetadata("NuGetPackageVersion")),
+                HintPath = item.ItemSpec,
+                FileHashHex = ComputeFileHashHex(item.ItemSpec),
+                CultureName = NullIfEmpty(item.GetMetadata("CultureName")),
+            });
+        }
+
         var packageRefs = (PackageReferences ?? [])
             .Select(item => new PackageReferenceInfo
             {
@@ -131,6 +151,34 @@ public class GenerateSbomTask : Microsoft.Build.Utilities.Task
             Log.LogMessage(MessageImportance.Low,
                 "Reading NuGet assets from: {0}", ProjectAssetsFile);
             assets = ProjectAssetsReader.Read(ProjectAssetsFile, TargetFramework, RuntimeIdentifier);
+
+            // Add resource (satellite) assemblies from project.assets.json as resolved references.
+            // MSBuild's @(ReferenceSatellitePaths) is not populated for NuGet packages, so
+            // the "resource" section in project.assets.json is the primary source.
+            foreach (var (key, pkgInfo) in assets.Packages)
+            {
+                if (pkgInfo.ResourceAssemblies.Count == 0 || pkgInfo.PackagePath is null)
+                    continue;
+
+                foreach (var resourceRelPath in pkgInfo.ResourceAssemblies)
+                {
+                    var fullPath = ResolvePackageFilePath(
+                        assets.PackageFolders, pkgInfo.PackagePath, resourceRelPath);
+                    if (fullPath is null)
+                        continue;
+
+                    var culture = Path.GetFileName(Path.GetDirectoryName(resourceRelPath));
+                    resolvedRefs.Add(new ResolvedReferenceInfo
+                    {
+                        FileName = Path.GetFileNameWithoutExtension(resourceRelPath),
+                        NuGetPackageId = pkgInfo.Name,
+                        NuGetPackageVersion = pkgInfo.Version,
+                        HintPath = fullPath,
+                        FileHashHex = ComputeFileHashHex(fullPath),
+                        CultureName = culture,
+                    });
+                }
+            }
         }
 
         return new SbomInput
@@ -163,6 +211,18 @@ public class GenerateSbomTask : Microsoft.Build.Utilities.Task
         using var stream = File.OpenRead(filePath);
         var hashBytes = SHA256.HashData(stream);
         return Convert.ToHexString(hashBytes).ToLowerInvariant();
+    }
+
+    internal static string? ResolvePackageFilePath(
+        List<string> packageFolders, string packagePath, string relativeFilePath)
+    {
+        foreach (var folder in packageFolders)
+        {
+            var fullPath = Path.Combine(folder, packagePath, relativeFilePath);
+            if (File.Exists(fullPath))
+                return fullPath;
+        }
+        return null;
     }
 
     private static string? NullIfEmpty(string? value) =>

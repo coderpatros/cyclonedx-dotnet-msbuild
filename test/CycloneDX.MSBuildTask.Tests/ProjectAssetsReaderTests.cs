@@ -80,6 +80,61 @@ public class ProjectAssetsReaderTests
     }
 
     [Fact]
+    public void Read_ExtractsResourceAssemblies()
+    {
+        var json = """
+        {
+          "version": 3,
+          "targets": {
+            "net10.0": {
+              "System.CommandLine/2.0.0-beta4": {
+                "type": "package",
+                "runtime": { "lib/net6.0/System.CommandLine.dll": {} },
+                "resource": {
+                  "lib/net6.0/cs/System.CommandLine.resources.dll": { "locale": "cs" },
+                  "lib/net6.0/de/System.CommandLine.resources.dll": { "locale": "de" },
+                  "lib/net6.0/fr/System.CommandLine.resources.dll": { "locale": "fr" }
+                }
+              }
+            }
+          },
+          "libraries": {
+            "System.CommandLine/2.0.0-beta4": {
+              "sha512": "abc123==",
+              "type": "package"
+            }
+          }
+        }
+        """;
+
+        var tempFile = Path.GetTempFileName();
+        try
+        {
+            File.WriteAllText(tempFile, json);
+            var data = ProjectAssetsReader.Read(tempFile, "net10.0");
+            var pkg = data.Packages["System.CommandLine/2.0.0-beta4"];
+
+            Assert.Equal(3, pkg.ResourceAssemblies.Count);
+            Assert.Contains("lib/net6.0/cs/System.CommandLine.resources.dll", pkg.ResourceAssemblies);
+            Assert.Contains("lib/net6.0/de/System.CommandLine.resources.dll", pkg.ResourceAssemblies);
+            Assert.Contains("lib/net6.0/fr/System.CommandLine.resources.dll", pkg.ResourceAssemblies);
+        }
+        finally
+        {
+            File.Delete(tempFile);
+        }
+    }
+
+    [Fact]
+    public void Read_ResourceAssembliesEmptyWhenNoResourceSection()
+    {
+        var data = ProjectAssetsReader.Read(FixturePath, "net10.0");
+        var pkg = data.Packages["Newtonsoft.Json/13.0.3"];
+
+        Assert.Empty(pkg.ResourceAssemblies);
+    }
+
+    [Fact]
     public void Read_ReturnsEmptyForMissingFile()
     {
         var data = ProjectAssetsReader.Read("/nonexistent/path/project.assets.json");
