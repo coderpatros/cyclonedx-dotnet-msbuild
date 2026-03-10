@@ -1,6 +1,6 @@
 ﻿{
   "bomFormat": "CycloneDX",
-  "specVersion": "1.6",
+  "specVersion": "1.7",
   "serialNumber": "SCRUBBED",
   "version": 1,
   "metadata": {
