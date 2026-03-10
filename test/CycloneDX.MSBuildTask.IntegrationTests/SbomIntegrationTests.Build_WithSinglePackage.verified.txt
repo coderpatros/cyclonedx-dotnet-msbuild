@@ -1,0 +1,126 @@
+﻿{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "SCRUBBED",
+  "version": 1,
+  "metadata": {
+    "timestamp": "SCRUBBED",
+    "tools": {
+      "components": [
+        {
+          "type": "application",
+          "group": "CycloneDX",
+          "name": "CycloneDX.MSBuildTask",
+          "description": "MSBuild task for CycloneDX SBOM generation"
+        }
+      ]
+    },
+    "component": {
+      "type": "application",
+      "bom-ref": "SinglePkg",
+      "name": "SinglePkg",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "cdx:msbuild:targetFramework",
+          "value": "net10.0"
+        }
+      ],
+      "components": [
+        {
+          "type": "file",
+          "bom-ref": "SinglePkg#SinglePkg",
+          "name": "SinglePkg",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "SinglePkg#SinglePkg.deps.json",
+          "name": "SinglePkg.deps.json",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "SinglePkg#SinglePkg.dll",
+          "name": "SinglePkg.dll",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "SinglePkg#SinglePkg.pdb",
+          "name": "SinglePkg.pdb",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "SinglePkg#SinglePkg.runtimeconfig.json",
+          "name": "SinglePkg.runtimeconfig.json",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "bom-ref": "TestLib.Core/1.0.0",
+      "authors": [
+        {
+          "name": "IntegrationTest"
+        }
+      ],
+      "name": "TestLib.Core",
+      "version": "1.0.0",
+      "description": "A core test library",
+      "scope": "required",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "SCRUBBED"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "purl": "pkg:nuget/TestLib.Core@1.0.0"
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "SinglePkg",
+      "dependsOn": [
+        "TestLib.Core/1.0.0"
+      ]
+    },
+    {
+      "ref": "TestLib.Core/1.0.0"
+    }
+  ]
+}
