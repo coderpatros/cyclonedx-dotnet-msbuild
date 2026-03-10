@@ -375,6 +375,105 @@ public class GenerateSbomTaskTests : IDisposable
     }
 
     [Fact]
+    public void EnumerateTopLevelFiles_FindsMatchingOutputFiles()
+    {
+        File.WriteAllText(Path.Combine(_tempDir, "TestProject.dll"), "dll");
+        File.WriteAllText(Path.Combine(_tempDir, "TestProject.pdb"), "pdb");
+        File.WriteAllText(Path.Combine(_tempDir, "TestProject.deps.json"), "deps");
+        File.WriteAllText(Path.Combine(_tempDir, "TestProject.runtimeconfig.json"), "rc");
+
+        var task = CreateTask();
+        var files = task.EnumerateTopLevelFiles();
+
+        Assert.Equal(4, files.Count);
+        Assert.Contains(files, f => f.FileName == "TestProject.dll");
+        Assert.Contains(files, f => f.FileName == "TestProject.pdb");
+        Assert.Contains(files, f => f.FileName == "TestProject.deps.json");
+        Assert.Contains(files, f => f.FileName == "TestProject.runtimeconfig.json");
+    }
+
+    [Fact]
+    public void EnumerateTopLevelFiles_OnlyIncludesExistingFiles()
+    {
+        File.WriteAllText(Path.Combine(_tempDir, "TestProject.dll"), "dll");
+        // No .pdb, .exe, etc.
+
+        var task = CreateTask();
+        var files = task.EnumerateTopLevelFiles();
+
+        Assert.Single(files);
+        Assert.Equal("TestProject.dll", files[0].FileName);
+    }
+
+    [Fact]
+    public void EnumerateTopLevelFiles_ComputesHashes()
+    {
+        File.WriteAllText(Path.Combine(_tempDir, "TestProject.dll"), "dll content");
+
+        var task = CreateTask();
+        var files = task.EnumerateTopLevelFiles();
+
+        Assert.Single(files);
+        Assert.NotNull(files[0].FileHashHex);
+        Assert.NotEmpty(files[0].FileHashHex!);
+        // SHA-256 produces 32 bytes = 64 hex characters
+        Assert.Equal(64, files[0].FileHashHex!.Length);
+    }
+
+    [Fact]
+    public void EnumerateTopLevelFiles_ReturnsEmptyForNonexistentDirectory()
+    {
+        var task = CreateTask();
+        task.OutputDirectory = Path.Combine(_tempDir, "nonexistent");
+
+        var files = task.EnumerateTopLevelFiles();
+
+        Assert.Empty(files);
+    }
+
+    [Fact]
+    public void EnumerateTopLevelFiles_IncludesExtensionlessExecutable()
+    {
+        File.WriteAllText(Path.Combine(_tempDir, "TestProject"), "elf binary");
+        File.WriteAllText(Path.Combine(_tempDir, "TestProject.dll"), "dll");
+
+        var task = CreateTask();
+        var files = task.EnumerateTopLevelFiles();
+
+        Assert.Equal(2, files.Count);
+        Assert.Contains(files, f => f.FileName == "TestProject");
+        Assert.Contains(files, f => f.FileName == "TestProject.dll");
+    }
+
+    [Fact]
+    public void EnumerateTopLevelFiles_IncludesExeExecutable()
+    {
+        File.WriteAllText(Path.Combine(_tempDir, "TestProject.exe"), "exe");
+        File.WriteAllText(Path.Combine(_tempDir, "TestProject.dll"), "dll");
+
+        var task = CreateTask();
+        var files = task.EnumerateTopLevelFiles();
+
+        Assert.Equal(2, files.Count);
+        Assert.Contains(files, f => f.FileName == "TestProject.exe");
+        Assert.Contains(files, f => f.FileName == "TestProject.dll");
+    }
+
+    [Fact]
+    public void Execute_TopLevelFilesAppearInMetadataComponent()
+    {
+        File.WriteAllText(Path.Combine(_tempDir, "TestProject.dll"), "dll content");
+        File.WriteAllText(Path.Combine(_tempDir, "TestProject.pdb"), "pdb content");
+
+        var task = CreateTask();
+        task.Execute();
+
+        var json = File.ReadAllText(Path.Combine(_tempDir, "bom.json"));
+        Assert.Contains("TestProject#TestProject.dll", json);
+        Assert.Contains("TestProject#TestProject.pdb", json);
+    }
+
+    [Fact]
     public void Execute_JsonContainsFileSubComponents()
     {
         // Create a real file so it can be hashed

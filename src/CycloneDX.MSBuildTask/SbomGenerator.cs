@@ -52,6 +52,26 @@ public class SbomGenerator
             Description = "MSBuild task for CycloneDX SBOM generation",
         };
 
+        var metadataComponent = new Component
+        {
+            Type = Component.Classification.Application,
+            BomRef = input.ProjectName,
+            Name = input.ProjectName,
+            Version = input.ProjectVersion ?? "0.0.0",
+            Properties = string.IsNullOrEmpty(input.TargetFramework) ? null :
+            [
+                new Property { Name = "cdx:msbuild:targetFramework", Value = input.TargetFramework },
+            ],
+        };
+
+        if (input.TopLevelFiles.Count > 0)
+        {
+            metadataComponent.Components = input.TopLevelFiles
+                .Select(f => CreateTopLevelFileSubComponent(input.ProjectName, f))
+                .OrderBy(c => c.Name, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+
         return new Metadata
         {
             Timestamp = DateTime.UtcNow,
@@ -59,18 +79,32 @@ public class SbomGenerator
             {
                 Components = [toolComponent],
             },
-            Component = new Component
-            {
-                Type = Component.Classification.Application,
-                BomRef = input.ProjectName,
-                Name = input.ProjectName,
-                Version = input.ProjectVersion ?? "0.0.0",
-                Properties = string.IsNullOrEmpty(input.TargetFramework) ? null :
-                [
-                    new Property { Name = "cdx:msbuild:targetFramework", Value = input.TargetFramework },
-                ],
-            },
+            Component = metadataComponent,
         };
+    }
+
+    private static Component CreateTopLevelFileSubComponent(string projectName, TopLevelFileInfo file)
+    {
+        var subComponent = new Component
+        {
+            Type = Component.Classification.File,
+            BomRef = $"{projectName}#{file.FileName}",
+            Name = file.FileName,
+        };
+
+        if (!string.IsNullOrEmpty(file.FileHashHex))
+        {
+            subComponent.Hashes =
+            [
+                new Hash
+                {
+                    Alg = Hash.HashAlgorithm.SHA_256,
+                    Content = file.FileHashHex,
+                },
+            ];
+        }
+
+        return subComponent;
     }
 
     private static List<Component> CreateComponents(SbomInput input)
@@ -522,6 +556,7 @@ public record SbomInput
     public string? TargetFramework { get; init; }
     public IReadOnlyList<ResolvedReferenceInfo> ResolvedReferences { get; init; } = [];
     public IReadOnlyList<PackageReferenceInfo> PackageReferences { get; init; } = [];
+    public IReadOnlyList<TopLevelFileInfo> TopLevelFiles { get; init; } = [];
     public ProjectAssetsData? ProjectAssets { get; init; }
 }
 
@@ -552,4 +587,11 @@ public class PackageReferenceInfo
 {
     public required string Name { get; init; }
     public string? Version { get; init; }
+}
+
+public class TopLevelFileInfo
+{
+    public required string FileName { get; init; }
+    public required string FullPath { get; init; }
+    public string? FileHashHex { get; init; }
 }
