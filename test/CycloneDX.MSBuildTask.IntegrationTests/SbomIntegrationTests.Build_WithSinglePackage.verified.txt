@@ -25,6 +25,63 @@
           "name": "cdx:msbuild:targetFramework",
           "value": "net10.0"
         }
+      ],
+      "components": [
+        {
+          "type": "file",
+          "bom-ref": "SinglePkg#SinglePkg",
+          "name": "SinglePkg",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "SinglePkg#SinglePkg.deps.json",
+          "name": "SinglePkg.deps.json",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "SinglePkg#SinglePkg.dll",
+          "name": "SinglePkg.dll",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "SinglePkg#SinglePkg.pdb",
+          "name": "SinglePkg.pdb",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "SinglePkg#SinglePkg.runtimeconfig.json",
+          "name": "SinglePkg.runtimeconfig.json",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        }
       ]
     }
   },

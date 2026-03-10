@@ -25,6 +25,63 @@
           "name": "cdx:msbuild:targetFramework",
           "value": "net10.0"
         }
+      ],
+      "components": [
+        {
+          "type": "file",
+          "bom-ref": "RealPkg#RealPkg",
+          "name": "RealPkg",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "14732c609c18d2f205412a17a41a9ff9e7544c32c45fc9b06a4eefdea6627569"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "RealPkg#RealPkg.deps.json",
+          "name": "RealPkg.deps.json",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "fd751d096ba8c5fa2577235d2f4a5108beb8c23f710e635440f02c3e6514afe8"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "RealPkg#RealPkg.dll",
+          "name": "RealPkg.dll",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "b0530e27587d32db6f4529d47cb12e0e77bf4864bd513feed2a56d9d66032186"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "RealPkg#RealPkg.pdb",
+          "name": "RealPkg.pdb",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "47af02282a14c763305b61e6d4e035bca5b169bd9d71bcb1ec58f4956e4be6f4"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "RealPkg#RealPkg.runtimeconfig.json",
+          "name": "RealPkg.runtimeconfig.json",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "f9bc8e9f0c46247078ed47309f19a7576b4b94e4300e9de0003917d6bd2d667a"
+            }
+          ]
+        }
       ]
     }
   },

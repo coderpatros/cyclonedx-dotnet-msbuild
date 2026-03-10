@@ -25,6 +25,63 @@
           "name": "cdx:msbuild:targetFramework",
           "value": "net10.0"
         }
+      ],
+      "components": [
+        {
+          "type": "file",
+          "bom-ref": "PrereleasePkg#PrereleasePkg",
+          "name": "PrereleasePkg",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "PrereleasePkg#PrereleasePkg.deps.json",
+          "name": "PrereleasePkg.deps.json",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "PrereleasePkg#PrereleasePkg.dll",
+          "name": "PrereleasePkg.dll",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "PrereleasePkg#PrereleasePkg.pdb",
+          "name": "PrereleasePkg.pdb",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "PrereleasePkg#PrereleasePkg.runtimeconfig.json",
+          "name": "PrereleasePkg.runtimeconfig.json",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        }
       ]
     }
   },

@@ -25,6 +25,63 @@
           "name": "cdx:msbuild:targetFramework",
           "value": "net10.0"
         }
+      ],
+      "components": [
+        {
+          "type": "file",
+          "bom-ref": "TransitiveDep#TransitiveDep",
+          "name": "TransitiveDep",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "TransitiveDep#TransitiveDep.deps.json",
+          "name": "TransitiveDep.deps.json",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "TransitiveDep#TransitiveDep.dll",
+          "name": "TransitiveDep.dll",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "TransitiveDep#TransitiveDep.pdb",
+          "name": "TransitiveDep.pdb",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "TransitiveDep#TransitiveDep.runtimeconfig.json",
+          "name": "TransitiveDep.runtimeconfig.json",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        }
       ]
     }
   },

@@ -25,6 +25,63 @@
           "name": "cdx:msbuild:targetFramework",
           "value": "net10.0"
         }
+      ],
+      "components": [
+        {
+          "type": "file",
+          "bom-ref": "WebApp#WebApp",
+          "name": "WebApp",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "WebApp#WebApp.deps.json",
+          "name": "WebApp.deps.json",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "WebApp#WebApp.dll",
+          "name": "WebApp.dll",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "WebApp#WebApp.pdb",
+          "name": "WebApp.pdb",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "WebApp#WebApp.runtimeconfig.json",
+          "name": "WebApp.runtimeconfig.json",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        }
       ]
     }
   },
