@@ -22,7 +22,7 @@ The result is an SBOM that reflects what MSBuild *actually* resolved, not just w
 
 ## Output Format
 
-The generated SBOM follows CycloneDX v1.6 and includes:
+The generated SBOM follows CycloneDX v1.7 and includes:
 
 - **Metadata** - project name, version, target framework, build timestamp, tool identification
 - **Components** - each NuGet package as a `library` component with Package URL (purl), SHA-512 hash, and resolved file paths; framework references as `framework` components
