@@ -1,0 +1,121 @@
+﻿{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "SCRUBBED",
+  "version": 1,
+  "metadata": {
+    "timestamp": "SCRUBBED",
+    "tools": {
+      "components": [
+        {
+          "type": "application",
+          "group": "CycloneDX",
+          "name": "CycloneDX.MSBuildTask",
+          "description": "MSBuild task for CycloneDX SBOM generation"
+        }
+      ]
+    },
+    "component": {
+      "type": "application",
+      "bom-ref": "PrereleasePkg",
+      "name": "PrereleasePkg",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "cdx:msbuild:targetFramework",
+          "value": "net10.0"
+        }
+      ],
+      "components": [
+        {
+          "type": "file",
+          "bom-ref": "PrereleasePkg#PrereleasePkg",
+          "name": "PrereleasePkg",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "PrereleasePkg#PrereleasePkg.deps.json",
+          "name": "PrereleasePkg.deps.json",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "PrereleasePkg#PrereleasePkg.dll",
+          "name": "PrereleasePkg.dll",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "PrereleasePkg#PrereleasePkg.pdb",
+          "name": "PrereleasePkg.pdb",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "PrereleasePkg#PrereleasePkg.runtimeconfig.json",
+          "name": "PrereleasePkg.runtimeconfig.json",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "bom-ref": "TestLib.Utils/3.0.0-beta.1",
+      "authors": [
+        {
+          "name": "IntegrationTest"
+        }
+      ],
+      "name": "TestLib.Utils",
+      "version": "3.0.0-beta.1",
+      "description": "A prerelease utility library",
+      "scope": "required",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "SCRUBBED"
+        }
+      ],
+      "purl": "pkg:nuget/TestLib.Utils@3.0.0-beta.1"
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "PrereleasePkg",
+      "dependsOn": [
+        "TestLib.Utils/3.0.0-beta.1"
+      ]
+    },
+    {
+      "ref": "TestLib.Utils/3.0.0-beta.1"
+    }
+  ]
+}

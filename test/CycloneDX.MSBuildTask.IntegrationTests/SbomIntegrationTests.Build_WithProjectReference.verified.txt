@@ -1,0 +1,174 @@
+﻿{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "SCRUBBED",
+  "version": 1,
+  "metadata": {
+    "timestamp": "SCRUBBED",
+    "tools": {
+      "components": [
+        {
+          "type": "application",
+          "group": "CycloneDX",
+          "name": "CycloneDX.MSBuildTask",
+          "description": "MSBuild task for CycloneDX SBOM generation"
+        }
+      ]
+    },
+    "component": {
+      "type": "application",
+      "bom-ref": "WebApp",
+      "name": "WebApp",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "cdx:msbuild:targetFramework",
+          "value": "net10.0"
+        }
+      ],
+      "components": [
+        {
+          "type": "file",
+          "bom-ref": "WebApp#WebApp",
+          "name": "WebApp",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "WebApp#WebApp.deps.json",
+          "name": "WebApp.deps.json",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "WebApp#WebApp.dll",
+          "name": "WebApp.dll",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "WebApp#WebApp.pdb",
+          "name": "WebApp.pdb",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "WebApp#WebApp.runtimeconfig.json",
+          "name": "WebApp.runtimeconfig.json",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "type": "framework",
+      "bom-ref": "framework:Infrastructure",
+      "name": "Infrastructure",
+      "version": "",
+      "properties": [
+        {
+          "name": "cdx:msbuild:resolvedFrom",
+          "value": "{TempPath}cyclonedx-integ-GUID/WebAppSln/Infrastructure/bin/Debug/net10.0/Infrastructure.dll"
+        },
+        {
+          "name": "cdx:msbuild:hintPath",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "TestLib.Core/1.0.0",
+      "authors": [
+        {
+          "name": "IntegrationTest"
+        }
+      ],
+      "name": "TestLib.Core",
+      "version": "1.0.0",
+      "description": "A core test library",
+      "scope": "required",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "SCRUBBED"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "purl": "pkg:nuget/TestLib.Core@1.0.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "TestLib.Logging/2.1.0",
+      "authors": [
+        {
+          "name": "IntegrationTest"
+        }
+      ],
+      "name": "TestLib.Logging",
+      "version": "2.1.0",
+      "description": "A logging test library",
+      "scope": "required",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "SCRUBBED"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "purl": "pkg:nuget/TestLib.Logging@2.1.0"
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "framework:Infrastructure"
+    },
+    {
+      "ref": "TestLib.Core/1.0.0"
+    },
+    {
+      "ref": "TestLib.Logging/2.1.0",
+      "dependsOn": [
+        "TestLib.Core/1.0.0"
+      ]
+    },
+    {
+      "ref": "WebApp",
+      "dependsOn": []
+    }
+  ]
+}

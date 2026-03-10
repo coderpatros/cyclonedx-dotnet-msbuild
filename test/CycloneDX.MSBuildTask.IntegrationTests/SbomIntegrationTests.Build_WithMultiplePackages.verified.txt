@@ -1,0 +1,150 @@
+﻿{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "SCRUBBED",
+  "version": 1,
+  "metadata": {
+    "timestamp": "SCRUBBED",
+    "tools": {
+      "components": [
+        {
+          "type": "application",
+          "group": "CycloneDX",
+          "name": "CycloneDX.MSBuildTask",
+          "description": "MSBuild task for CycloneDX SBOM generation"
+        }
+      ]
+    },
+    "component": {
+      "type": "application",
+      "bom-ref": "MultiPkg",
+      "name": "MultiPkg",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "cdx:msbuild:targetFramework",
+          "value": "net10.0"
+        }
+      ],
+      "components": [
+        {
+          "type": "file",
+          "bom-ref": "MultiPkg#MultiPkg",
+          "name": "MultiPkg",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "MultiPkg#MultiPkg.deps.json",
+          "name": "MultiPkg.deps.json",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "MultiPkg#MultiPkg.dll",
+          "name": "MultiPkg.dll",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "MultiPkg#MultiPkg.pdb",
+          "name": "MultiPkg.pdb",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "bom-ref": "MultiPkg#MultiPkg.runtimeconfig.json",
+          "name": "MultiPkg.runtimeconfig.json",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "SCRUBBED"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "bom-ref": "TestLib.Core/1.0.0",
+      "authors": [
+        {
+          "name": "IntegrationTest"
+        }
+      ],
+      "name": "TestLib.Core",
+      "version": "1.0.0",
+      "description": "A core test library",
+      "scope": "required",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "SCRUBBED"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "purl": "pkg:nuget/TestLib.Core@1.0.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "TestLib.Utils/3.0.0-beta.1",
+      "authors": [
+        {
+          "name": "IntegrationTest"
+        }
+      ],
+      "name": "TestLib.Utils",
+      "version": "3.0.0-beta.1",
+      "description": "A prerelease utility library",
+      "scope": "required",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "SCRUBBED"
+        }
+      ],
+      "purl": "pkg:nuget/TestLib.Utils@3.0.0-beta.1"
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "MultiPkg",
+      "dependsOn": [
+        "TestLib.Core/1.0.0",
+        "TestLib.Utils/3.0.0-beta.1"
+      ]
+    },
+    {
+      "ref": "TestLib.Core/1.0.0"
+    },
+    {
+      "ref": "TestLib.Utils/3.0.0-beta.1"
+    }
+  ]
+}
