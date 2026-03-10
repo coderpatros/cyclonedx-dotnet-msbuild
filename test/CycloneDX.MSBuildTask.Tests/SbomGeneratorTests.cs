@@ -73,7 +73,7 @@ public class SbomGeneratorTests
     public void Generate_SetsSpecVersion()
     {
         var bom = GenerateAndValidate(CreateBasicInput());
-        Assert.Equal(SpecificationVersion.v1_6, bom.SpecVersion);
+        Assert.Equal(SpecificationVersion.v1_7, bom.SpecVersion);
     }
 
     [Fact]

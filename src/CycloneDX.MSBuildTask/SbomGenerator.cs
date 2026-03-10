@@ -29,7 +29,7 @@ public class SbomGenerator
     {
         var bom = new Bom
         {
-            SpecVersion = SpecificationVersion.v1_6,
+            SpecVersion = SpecificationVersion.v1_7,
             Version = 1,
             SerialNumber = $"urn:uuid:{Guid.NewGuid()}",
             Metadata = CreateMetadata(input),
