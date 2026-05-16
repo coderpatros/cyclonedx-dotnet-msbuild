@@ -28,7 +28,7 @@ public class TestProjectHelper
         _tempDir = tempDir;
         _taskPackageDir = Path.GetDirectoryName(taskPackagePath)!;
         _repoRoot = FindRepoRoot();
-        _taskDll = Path.Combine(_repoRoot, "src", "CycloneDX.MSBuildTask", "bin", "Debug", "net8.0", "CycloneDX.MSBuildTask.dll");
+        _taskDll = Path.Combine(_repoRoot, "src", "CycloneDX.MSBuildTask", "bin", "Debug", "net10.0", "CycloneDX.MSBuildTask.dll");
     }
 
     /// <summary>

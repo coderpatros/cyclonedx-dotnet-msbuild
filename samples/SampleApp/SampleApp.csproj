@@ -12,7 +12,7 @@
 
   <!-- Reference the local CycloneDX.MSBuildTask task (override assembly path for source tree) -->
   <PropertyGroup>
-    <CycloneDxMSBuildTaskAssembly>$(MSBuildThisFileDirectory)../../src/CycloneDX.MSBuildTask/bin/$(Configuration)/net8.0/CycloneDX.MSBuildTask.dll</CycloneDxMSBuildTaskAssembly>
+    <CycloneDxMSBuildTaskAssembly>$(MSBuildThisFileDirectory)../../src/CycloneDX.MSBuildTask/bin/$(Configuration)/net10.0/CycloneDX.MSBuildTask.dll</CycloneDxMSBuildTaskAssembly>
   </PropertyGroup>
   <Import Project="../../src/CycloneDX.MSBuildTask/build/CycloneDX.MSBuildTask.props" />
   <Import Project="../../src/CycloneDX.MSBuildTask/build/CycloneDX.MSBuildTask.targets" />
