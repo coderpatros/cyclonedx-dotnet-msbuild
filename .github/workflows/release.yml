@@ -47,7 +47,7 @@ jobs:
         id: package_release
         run: |
           VERSION=`cat semver.txt`
-          echo "##[set-output name=version;]$VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
           dotnet build --configuration Release /p:Version=$VERSION /p:PackageOutputPath=$PWD/nupkgs
 
       - name: Publish packages to NuGet
@@ -56,23 +56,11 @@ jobs:
         run: |
           dotnet nuget push --source https://api.nuget.org/v3/index.json --api-key "$NUGET_API_KEY" ./nupkgs/CycloneDX.MSBuildTask.${{ steps.package_release.outputs.version }}.nupkg
 
-      - name: Create github release and git tag for release
-        id: create_release
-        uses: actions/create-release@v1.1.4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create github release and upload package
+        uses: softprops/action-gh-release@v2
         with:
-          release_name: ${{ steps.package_release.outputs.version }}
+          name: ${{ steps.package_release.outputs.version }}
           tag_name: v${{ steps.package_release.outputs.version }}
           draft: false
           prerelease: false
-
-      - name: Upload package to github release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./nupkgs/CycloneDX.MSBuildTask.${{ steps.package_release.outputs.version }}.nupkg
-          asset_name: CycloneDX.MSBuildTask.${{ steps.package_release.outputs.version }}.nupkg
-          asset_content_type: application/zip
+          files: ./nupkgs/CycloneDX.MSBuildTask.${{ steps.package_release.outputs.version }}.nupkg
