@@ -57,7 +57,7 @@ jobs:
           dotnet nuget push --source https://api.nuget.org/v3/index.json --api-key "$NUGET_API_KEY" ./nupkgs/CycloneDX.MSBuildTask.${{ steps.package_release.outputs.version }}.nupkg
 
       - name: Create github release and upload package
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           name: ${{ steps.package_release.outputs.version }}
           tag_name: v${{ steps.package_release.outputs.version }}
